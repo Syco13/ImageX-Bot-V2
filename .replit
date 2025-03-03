@@ -6,3 +6,14 @@ run = ["sh", "-c", "python3 bot/main.py"]
 
 [nix]
 channel = "stable-24_05"
+
+[workflows]
+runButton = "Run Bot"
+
+[[workflows.workflow]]
+name = "Run Bot"
+author = 40180043
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
