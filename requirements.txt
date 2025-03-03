@@ -6,7 +6,7 @@ python-dotenv==1.0.0
 psutil==5.9.5
 
 # Image processing
-Pillow==10.1.0
+Pillow==10.3.0
 python-magic==0.4.27  # Für Dateityperkennung auf Linux/Mac
 python-magic-bin==0.4.14  # Für Dateityperkennung auf Windows
 
@@ -15,12 +15,12 @@ colorlog==6.7.0
 
 # Optional: Keep-alive webserver (für Replit-Hosting)
 Flask==2.3.3
-Werkzeug==2.3.7  # Dependency für Flask mit kompatiblem Versionsbereich
+Werkzeug==3.0.6  # Dependency für Flask mit kompatiblem Versionsbereich
 
 # Async tools
-aiohttp==3.8.5  # Für asynchrone HTTP-Anfragen
+aiohttp==3.11.0b0  # Für asynchrone HTTP-Anfragen
 asyncio==3.4.3  # Explizites Aufführen der asyncio-Bibliothek
 
 # Development tools (optional)
-black==23.9.1  # Code formatting
+black==24.3.0  # Code formatting
 flake8==6.1.0  # Linting
