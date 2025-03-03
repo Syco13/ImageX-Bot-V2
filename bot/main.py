@@ -195,9 +195,11 @@ async def restart(interaction: discord.Interaction):
 async def help_command(interaction: discord.Interaction):
     embed = discord.Embed(title="ℹ️ **ImageX-Bot Hilfe**", color=discord.Color.green())
     embed.add_field(name="/convert [format]", value="Konvertiert hochgeladene Bilder in ein anderes Format.", inline=False)
+    embed.add_field(name="/format_info [format]", value="Zeigt Informationen über ein bestimmtes Bildformat.", inline=False)
     embed.add_field(name="/status", value="Zeigt den aktuellen Status der Warteschlange.", inline=False)
     embed.add_field(name="/logs [Anzahl]", value="Zeigt die letzten Logs (nur für Admins).", inline=False)
     embed.add_field(name="/restart", value="Startet den Bot neu (nur für Admins).", inline=False)
+    embed.add_field(name="/ping", value="Zeigt die Latenz des Bots an.", inline=False)
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -205,5 +207,26 @@ async def help_command(interaction: discord.Interaction):
 async def ping(interaction: discord.Interaction):
     latency = round(bot.latency * 1000)
     await interaction.response.send_message(f"🏓 **Pong!** Latenz: `{latency}ms`", ephemeral=True)
+
+@bot.tree.command(name="format_info", description="Zeigt Informationen über ein bestimmtes Format")
+@app_commands.describe(format_name="Das Format, über das du Informationen erhalten möchtest")
+async def format_info(interaction: discord.Interaction, format_name: str):
+    format_name = format_name.lower()
+    
+    format_infos = {
+        "png": "**PNG** (Portable Network Graphics): Verlustfreies Format mit Transparenz-Unterstützung. Ideal für Grafiken und Screenshots.",
+        "jpg": "**JPG/JPEG** (Joint Photographic Experts Group): Komprimiertes Format für Fotos. Gut für Webseiten aber verlustbehaftet.",
+        "webp": "**WebP**: Modernes Format von Google mit guter Kompression und Qualität. Ideal für Websites.",
+        "gif": "**GIF** (Graphics Interchange Format): Unterstützt Animationen, begrenzte Farbpalette (256 Farben).",
+        "bmp": "**BMP** (Bitmap): Unkomprimiertes Format, große Dateigröße aber ohne Qualitätsverlust.",
+        "tiff": "**TIFF** (Tagged Image File Format): Hochqualitatives Format für Druck und professionelle Bearbeitung.",
+        "ico": "**ICO**: Spezielles Format für Windows-Icons, unterstützt mehrere Größen in einer Datei.",
+        "dds": "**DDS** (DirectDraw Surface): Format für Texturen in Spielen. **Hinweis:** Wird aktuell nicht direkt unterstützt, wird zu PNG konvertiert."
+    }
+    
+    if format_name in format_infos:
+        await interaction.response.send_message(f"ℹ️ **Formatinfo: {format_name.upper()}**\n\n{format_infos[format_name]}", ephemeral=False)
+    else:
+        await interaction.response.send_message(f"❌ **Format '{format_name}' nicht gefunden oder nicht unterstützt.**\n\nVerfügbare Formate: png, jpg, webp, gif, bmp, tiff, ico, dds", ephemeral=True)
 
 bot.run(TOKEN)
