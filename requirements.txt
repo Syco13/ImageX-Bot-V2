@@ -1,0 +1,14 @@
+discord.py  # Discord-Bot-Framework
+python-dotenv  # Umgebungsvariablen
+requests  # HTTP-Requests (Bilder herunterladen)
+Pillow  # Bildverarbeitung (PNG, JPEG, BMP, GIF, TIFF, ICO, WebP)
+aiohttp  # Asynchrone HTTP-Requests (für Discord & API-Zugriffe)
+asyncio  # Asynchrone Verarbeitung (Warteschlange)
+opencv-python-headless  # Bildverarbeitung für RAW, HDR, EXR, etc.
+wand  # ImageMagick Wrapper (SVG, PSD, AI, EPS, PDF)
+pyheif  # HEIC zu JPG/PNG Konvertierung
+rawpy  # RAW-Fotoformate (NEF, CR2, DNG, RW2, etc.)
+loguru  # Erweiterte Logging-Funktionen
+pdf2image  # PDF in Bilder umwandeln
+img2pdf  # Bilder zu PDFs konvertieren
+reportlab  # PDFs generieren
