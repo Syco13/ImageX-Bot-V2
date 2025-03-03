@@ -30,6 +30,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="ImageX 🔥 | /convert"))
 
 @bot.tree.command(name="convert", description="Konvertiere Bilder in ein anderes Format")
+@app_commands.describe(target_format="Das Zielformat (z.B. png, jpg, webp)")
 async def convert(interaction: discord.Interaction, target_format: str):
     global last_request_time
     current_time = time.time()
@@ -44,12 +45,18 @@ async def convert(interaction: discord.Interaction, target_format: str):
         await interaction.response.send_message(f"⏳ Bitte warte noch `{5 - (current_time - last_request_time):.1f}` Sekunden.", ephemeral=True)
         return
 
-    # Anhänge prüfen (Fix: interaction.message gibt es nicht!)
-    if not interaction.attachments:
-        await interaction.response.send_message("⚠️ **Bitte lade mindestens eine Datei hoch!**", ephemeral=True)
-        return
-
-    images = interaction.attachments[:MAX_FILES_PER_REQUEST]
+    # Wir müssen dem Benutzer erst antworten und dann nach Anhängen fragen
+    await interaction.response.send_message("⚠️ **Bitte sende jetzt die Bilder, die du konvertieren möchtest!**", ephemeral=True)
+    
+    # Funktion zum Sammeln der Anhänge
+    def check(message):
+        return message.author == interaction.user and message.attachments
+    
+    try:
+        # Warte auf die Nachricht mit Anhängen (Timeout nach 60 Sekunden)
+        message = await bot.wait_for('message', check=check, timeout=60.0)
+        images = message.attachments[:MAX_FILES_PER_REQUEST]
+        logger.info(f"Bilder von {interaction.user.name} erhalten: {len(images)} Dateien")
 
     # Format prüfen
     if target_format.lower() not in ALLOWED_FORMATS:
@@ -58,11 +65,16 @@ async def convert(interaction: discord.Interaction, target_format: str):
 
     last_request_time = current_time
 
-    # Bilder in Warteschlange hinzufügen
-    for image in images:
-        await queue.add(interaction, image, target_format)
+        # Bilder in Warteschlange hinzufügen
+        for image in images:
+            await queue.add(message.channel, image, target_format)
 
-    await interaction.response.send_message(f"⏳ **Deine Bilder werden in `{target_format}` konvertiert...**", ephemeral=True)
+        await message.channel.send(f"⏳ **Deine Bilder werden in `{target_format}` konvertiert...**")
+    except asyncio.TimeoutError:
+        # Wenn der Benutzer keine Bilder innerhalb der Zeitbeschränkung sendet
+        follow_up = await interaction.original_response()
+        await follow_up.edit(content="❌ **Zeitüberschreitung! Keine Bilder erhalten.**")
+        logger.warning(f"Zeitüberschreitung für {interaction.user.name} - keine Bilder erhalten")
 
 @bot.tree.command(name="status", description="Zeigt die aktuelle Warteschlange")
 async def status(interaction: discord.Interaction):
