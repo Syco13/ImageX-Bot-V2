@@ -1,7 +1,7 @@
 import os
 
 # Discord Bot Token
-TOKEN = os.getenv("MTM0NjA5MzMwMDM2MDQxNzM0MQ.GrFxOT.EcVa3VVYKiJ24O_MAvyPsZ0Lc389Quw3LLAo9U")
+TOKEN = os.getenv("MTM0NjA5MzMwMDM2MDQxNzM0MQ.GFqWag.RpO08hbYOCeZGyJ5fPEs-FikylbOFZmLaT3JlM")
 
 # Bot Einstellungen
 COMMAND_PREFIX = "/"  # Slash-Commands für modernen Discord-Support
