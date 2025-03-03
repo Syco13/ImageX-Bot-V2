@@ -1,0 +1,20 @@
+2025-03-03 21:28:52,794 - [DEBUG] - conversions - convert_image:20 - Starte Konvertierung von https://cdn.discordapp.com/attachments/1346220668253110323/1346232887065841716/dda9e551-31c7-43fb-b5f3-ac960502503f.png?ex=67c77094&is=67c61f14&hm=63d15d3e420962f9cc3429662bb4031aee46ee6b3d13be6d389cc3728d7e165d& zu dds
+2025-03-03 21:28:53,050 - [DEBUG] - conversions - convert_image:28 - Bild heruntergeladen: 1411061 Bytes
+2025-03-03 21:28:53,073 - [DEBUG] - conversions - convert_image:31 - Bildformat erkannt: PNG, Größe: (1792, 1024), Modus: RGB
+2025-03-03 21:28:53,073 - [DEBUG] - conversions - convert_image:36 - DDS-Konvertierung mit ImageMagick wird durchgeführt...
+2025-03-03 21:28:53,554 - [DEBUG] - conversions - convert_image:40 - Temporäre PNG-Datei gespeichert: /tmp/input.png
+2025-03-03 21:28:53,556 - [ERROR] - conversions - convert_image:76 - ❌ FileNotFoundError bei der Konvertierung: [Errno 2] No such file or directory: '/usr/bin/convert' (nach 0.76 Sekunden)
+2025-03-03 21:28:53,558 - [ERROR] - conversions - convert_image:77 - Traceback: Traceback (most recent call last):
+  File "/home/runner/workspace/bot/converter.py", line 42, in convert_image
+    result = subprocess.run([IMAGEMAGICK_PATH, input_path, output_path],
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/nb21sc3npfc8gvazwnrjxpvb5d48jysx-python3-3.12.7/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/nix/store/nb21sc3npfc8gvazwnrjxpvb5d48jysx-python3-3.12.7/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/nix/store/nb21sc3npfc8gvazwnrjxpvb5d48jysx-python3-3.12.7/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/usr/bin/convert'
+
+2025-03-03 21:28:53,735 - [INFO] - conversions - log_conversion:100 - Konvertierung fehlgeschlagen: dda9e551-31c7-43fb-b5f3-ac960502503f.png -> dds für Unbekannt
