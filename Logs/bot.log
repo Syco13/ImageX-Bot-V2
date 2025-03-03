@@ -53,3 +53,27 @@
 2025-03-03 21:29:38,805 - [INFO] - bot - on_ready:41 - ====================================
 2025-03-03 21:29:38,805 - [INFO] - bot - on_ready:42 - 🤖 Bot ist vollständig gestartet und bereit!
 2025-03-03 21:29:38,805 - [INFO] - bot - on_ready:43 - ====================================
+2025-03-03 21:33:20,332 - [INFO] - bot - <module>:83 - ===== ImageX-Bot gestartet am 03.03.2025 21:33:20 =====
+2025-03-03 21:33:20,334 - [DEBUG] - bot - <module>:84 - Log-Level: 10
+2025-03-03 21:33:20,334 - [DEBUG] - bot - <module>:85 - Pfad: /home/runner/workspace
+2025-03-03 21:33:20,334 - [DEBUG] - bot - <module>:86 - Python Version: 3.12.7 (main, Oct  1 2024, 02:05:46) [GCC 13.3.0]
+2025-03-03 21:33:23,004 - [INFO] - bot - on_ready:28 - 🚀 ImageX-Bot#0233 ist online! Bot-ID: 1346093300360417341
+2025-03-03 21:33:23,005 - [DEBUG] - bot - on_ready:29 - In 1 Servern aktiv
+2025-03-03 21:33:23,005 - [DEBUG] - bot - on_ready:33 - Server: Tretowieren Studios (ID: 1334577356375068672) - 1 Mitglieder
+2025-03-03 21:33:23,251 - [INFO] - bot - on_ready:36 - ✅ Slash-Commands synchronisiert
+2025-03-03 21:33:23,252 - [INFO] - bot - on_ready:39 - ✅ Status gesetzt: 'ImageX 🔥 | /convert'
+2025-03-03 21:33:23,252 - [INFO] - bot - on_ready:41 - ====================================
+2025-03-03 21:33:23,252 - [INFO] - bot - on_ready:42 - 🤖 Bot ist vollständig gestartet und bereit!
+2025-03-03 21:33:23,252 - [INFO] - bot - on_ready:43 - ====================================
+2025-03-03 21:33:25,735 - [INFO] - bot - <module>:83 - ===== ImageX-Bot gestartet am 03.03.2025 21:33:25 =====
+2025-03-03 21:33:25,735 - [DEBUG] - bot - <module>:84 - Log-Level: 10
+2025-03-03 21:33:25,736 - [DEBUG] - bot - <module>:85 - Pfad: /home/runner/workspace
+2025-03-03 21:33:25,736 - [DEBUG] - bot - <module>:86 - Python Version: 3.12.7 (main, Oct  1 2024, 02:05:46) [GCC 13.3.0]
+2025-03-03 21:33:28,351 - [INFO] - bot - on_ready:28 - 🚀 ImageX-Bot#0233 ist online! Bot-ID: 1346093300360417341
+2025-03-03 21:33:28,351 - [DEBUG] - bot - on_ready:29 - In 1 Servern aktiv
+2025-03-03 21:33:28,351 - [DEBUG] - bot - on_ready:33 - Server: Tretowieren Studios (ID: 1334577356375068672) - 1 Mitglieder
+2025-03-03 21:34:23,221 - [INFO] - bot - on_ready:36 - ✅ Slash-Commands synchronisiert
+2025-03-03 21:34:23,222 - [INFO] - bot - on_ready:39 - ✅ Status gesetzt: 'ImageX 🔥 | /convert'
+2025-03-03 21:34:23,222 - [INFO] - bot - on_ready:41 - ====================================
+2025-03-03 21:34:23,222 - [INFO] - bot - on_ready:42 - 🤖 Bot ist vollständig gestartet und bereit!
+2025-03-03 21:34:23,222 - [INFO] - bot - on_ready:43 - ====================================

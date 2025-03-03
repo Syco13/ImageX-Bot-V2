@@ -26,3 +26,73 @@ FileNotFoundError: [Errno 2] No such file or directory: '/usr/bin/convert'
 2025-03-03 21:29:54,829 - [ERROR] - conversions - convert_image:73 - ❌ ImageMagick nicht gefunden: [Errno 2] No such file or directory: 'convert'
 2025-03-03 21:29:54,829 - [ERROR] - conversions - convert_image:74 - Pfad, der verwendet wurde: convert
 2025-03-03 21:29:55,009 - [INFO] - conversions - log_conversion:100 - Konvertierung fehlgeschlagen: 392691258ff3aea2d8225a1adfa496f2.png -> dds für Unbekannt
+2025-03-03 21:35:22,532 - [DEBUG] - conversions - convert_image:18 - Starte Konvertierung von https://cdn.discordapp.com/attachments/1346220668253110323/1346234522689212468/dda9e551-31c7-43fb-b5f3-ac960502503f.png?ex=67c7721a&is=67c6209a&hm=06095648af3e47cc9fe60fb8c73aa0a4703d3e7bb76502fa3f0a12254b4ab754& zu dds
+2025-03-03 21:35:22,805 - [DEBUG] - conversions - convert_image:26 - Bild heruntergeladen: 1411061 Bytes
+2025-03-03 21:35:22,806 - [DEBUG] - conversions - convert_image:33 - DDS-Konvertierung wird mit OpenCV vorbereitet...
+2025-03-03 21:35:23,369 - [DEBUG] - conversions - convert_image:43 - Temporäre PNG-Datei gespeichert: /tmp/input.png
+2025-03-03 21:35:23,423 - [DEBUG] - conversions - convert_image:52 - Bild Größe: 1792x1024
+2025-03-03 21:35:23,494 - [DEBUG] - conversions - convert_image:57 - Bild mit OpenCV verarbeitet und gespeichert: /tmp/output.png
+2025-03-03 21:35:23,496 - [DEBUG] - conversions - convert_image:66 - Temporäre Dateien gelöscht
+2025-03-03 21:35:23,496 - [WARNING] - conversions - convert_image:72 - ⚠️ DDS-Format nicht unterstützt. Stattdessen PNG zurückgegeben.
+2025-03-03 21:35:23,496 - [INFO] - conversions - convert_image:75 - ✅ Erfolgreiche Ersatzkonvertierung zu PNG in 0.96 Sekunden
+2025-03-03 21:35:24,236 - [INFO] - conversions - log_conversion:100 - Konvertierung erfolgreich: dda9e551-31c7-43fb-b5f3-ac960502503f.png -> dds für Unbekannt
+2025-03-03 21:35:50,226 - [DEBUG] - conversions - convert_image:18 - Starte Konvertierung von https://cdn.discordapp.com/attachments/1346220668253110323/1346234638011600998/dda9e551-31c7-43fb-b5f3-ac960502503f.webp?ex=67c77235&is=67c620b5&hm=fbe0826bb228e2c6a5ec731bf1ff69bcf2974c0bf73e21e2fc9b152bbdc5acbc& zu dds
+2025-03-03 21:35:50,745 - [DEBUG] - conversions - convert_image:26 - Bild heruntergeladen: 250142 Bytes
+2025-03-03 21:35:50,745 - [DEBUG] - conversions - convert_image:33 - DDS-Konvertierung wird mit OpenCV vorbereitet...
+2025-03-03 21:35:51,400 - [DEBUG] - conversions - convert_image:43 - Temporäre PNG-Datei gespeichert: /tmp/input.png
+2025-03-03 21:35:51,445 - [DEBUG] - conversions - convert_image:52 - Bild Größe: 1792x1024
+2025-03-03 21:35:51,558 - [DEBUG] - conversions - convert_image:57 - Bild mit OpenCV verarbeitet und gespeichert: /tmp/output.png
+2025-03-03 21:35:51,560 - [DEBUG] - conversions - convert_image:66 - Temporäre Dateien gelöscht
+2025-03-03 21:35:51,561 - [WARNING] - conversions - convert_image:72 - ⚠️ DDS-Format nicht unterstützt. Stattdessen PNG zurückgegeben.
+2025-03-03 21:35:51,561 - [INFO] - conversions - convert_image:75 - ✅ Erfolgreiche Ersatzkonvertierung zu PNG in 1.34 Sekunden
+2025-03-03 21:35:51,572 - [DEBUG] - conversions - convert_image:18 - Starte Konvertierung von https://cdn.discordapp.com/attachments/1346220668253110323/1346234638703525919/d359a453-0f25-4b8c-9dc9-442cbeb0c7af.png?ex=67c77235&is=67c620b5&hm=afd9e889a6bc0376d9614867bc681083fdf9dad7256f5a58041281a445c9cda9& zu dds
+2025-03-03 21:35:51,803 - [DEBUG] - conversions - convert_image:26 - Bild heruntergeladen: 1285714 Bytes
+2025-03-03 21:35:51,804 - [DEBUG] - conversions - convert_image:33 - DDS-Konvertierung wird mit OpenCV vorbereitet...
+2025-03-03 21:35:52,365 - [DEBUG] - conversions - convert_image:43 - Temporäre PNG-Datei gespeichert: /tmp/input.png
+2025-03-03 21:35:52,400 - [DEBUG] - conversions - convert_image:52 - Bild Größe: 1024x1024
+2025-03-03 21:35:52,478 - [DEBUG] - conversions - convert_image:57 - Bild mit OpenCV verarbeitet und gespeichert: /tmp/output.png
+2025-03-03 21:35:52,482 - [DEBUG] - conversions - convert_image:66 - Temporäre Dateien gelöscht
+2025-03-03 21:35:52,483 - [WARNING] - conversions - convert_image:72 - ⚠️ DDS-Format nicht unterstützt. Stattdessen PNG zurückgegeben.
+2025-03-03 21:35:52,484 - [INFO] - conversions - convert_image:75 - ✅ Erfolgreiche Ersatzkonvertierung zu PNG in 0.91 Sekunden
+2025-03-03 21:35:52,486 - [DEBUG] - conversions - convert_image:18 - Starte Konvertierung von https://cdn.discordapp.com/attachments/1346220668253110323/1346234637201969184/dda9e551-31c7-43fb-b5f3-ac960502503f.png?ex=67c77235&is=67c620b5&hm=355ee3aebfe644801fb791d7269f9654fd05d3c55f8d8e9ee4c651136141710e& zu dds
+2025-03-03 21:35:52,762 - [DEBUG] - conversions - convert_image:26 - Bild heruntergeladen: 1411061 Bytes
+2025-03-03 21:35:52,763 - [DEBUG] - conversions - convert_image:33 - DDS-Konvertierung wird mit OpenCV vorbereitet...
+2025-03-03 21:35:53,512 - [DEBUG] - conversions - convert_image:43 - Temporäre PNG-Datei gespeichert: /tmp/input.png
+2025-03-03 21:35:53,556 - [DEBUG] - conversions - convert_image:52 - Bild Größe: 1792x1024
+2025-03-03 21:35:53,641 - [DEBUG] - conversions - convert_image:57 - Bild mit OpenCV verarbeitet und gespeichert: /tmp/output.png
+2025-03-03 21:35:53,643 - [DEBUG] - conversions - convert_image:66 - Temporäre Dateien gelöscht
+2025-03-03 21:35:53,643 - [WARNING] - conversions - convert_image:72 - ⚠️ DDS-Format nicht unterstützt. Stattdessen PNG zurückgegeben.
+2025-03-03 21:35:53,643 - [INFO] - conversions - convert_image:75 - ✅ Erfolgreiche Ersatzkonvertierung zu PNG in 1.16 Sekunden
+2025-03-03 21:35:53,645 - [DEBUG] - conversions - convert_image:18 - Starte Konvertierung von https://cdn.discordapp.com/attachments/1346220668253110323/1346234639387201576/d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp?ex=67c77235&is=67c620b5&hm=b9c5369f7487fa222bb6a0160266731499e090123fbab459882fd696cd371b5a& zu dds
+2025-03-03 21:35:54,010 - [DEBUG] - conversions - convert_image:26 - Bild heruntergeladen: 239560 Bytes
+2025-03-03 21:35:54,011 - [DEBUG] - conversions - convert_image:33 - DDS-Konvertierung wird mit OpenCV vorbereitet...
+2025-03-03 21:35:54,602 - [DEBUG] - conversions - convert_image:43 - Temporäre PNG-Datei gespeichert: /tmp/input.png
+2025-03-03 21:35:54,651 - [DEBUG] - conversions - convert_image:52 - Bild Größe: 1024x1024
+2025-03-03 21:35:54,712 - [DEBUG] - conversions - convert_image:57 - Bild mit OpenCV verarbeitet und gespeichert: /tmp/output.png
+2025-03-03 21:35:54,714 - [DEBUG] - conversions - convert_image:66 - Temporäre Dateien gelöscht
+2025-03-03 21:35:54,715 - [WARNING] - conversions - convert_image:72 - ⚠️ DDS-Format nicht unterstützt. Stattdessen PNG zurückgegeben.
+2025-03-03 21:35:54,715 - [INFO] - conversions - convert_image:75 - ✅ Erfolgreiche Ersatzkonvertierung zu PNG in 1.07 Sekunden
+2025-03-03 21:35:55,694 - [INFO] - conversions - log_conversion:100 - Konvertierung erfolgreich: dda9e551-31c7-43fb-b5f3-ac960502503f.png -> dds für Unbekannt
+2025-03-03 21:35:56,180 - [INFO] - conversions - log_conversion:100 - Konvertierung erfolgreich: dda9e551-31c7-43fb-b5f3-ac960502503f.webp -> dds für Unbekannt
+2025-03-03 21:35:56,712 - [INFO] - conversions - log_conversion:100 - Konvertierung erfolgreich: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.png -> dds für Unbekannt
+2025-03-03 21:35:57,767 - [INFO] - conversions - log_conversion:100 - Konvertierung erfolgreich: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp -> dds für Unbekannt
+2025-03-03 21:37:06,450 - [DEBUG] - conversions - convert_image:18 - Starte Konvertierung von https://cdn.discordapp.com/attachments/1346198382909198446/1346234957999374509/nc_chrome_dm.jpeg?ex=67c77281&is=67c62101&hm=ca4b586458a5a1bdf6138585b39deea8af32e7747b45dd344b88b4155516e826& zu dds
+2025-03-03 21:37:06,656 - [DEBUG] - conversions - convert_image:26 - Bild heruntergeladen: 162271 Bytes
+2025-03-03 21:37:06,656 - [DEBUG] - conversions - convert_image:33 - DDS-Konvertierung wird mit OpenCV vorbereitet...
+2025-03-03 21:37:06,715 - [DEBUG] - conversions - convert_image:43 - Temporäre PNG-Datei gespeichert: /tmp/input.png
+2025-03-03 21:37:06,722 - [DEBUG] - conversions - convert_image:52 - Bild Größe: 500x335
+2025-03-03 21:37:06,734 - [DEBUG] - conversions - convert_image:57 - Bild mit OpenCV verarbeitet und gespeichert: /tmp/output.png
+2025-03-03 21:37:06,740 - [DEBUG] - conversions - convert_image:66 - Temporäre Dateien gelöscht
+2025-03-03 21:37:06,740 - [WARNING] - conversions - convert_image:72 - ⚠️ DDS-Format nicht unterstützt. Stattdessen PNG zurückgegeben.
+2025-03-03 21:37:06,740 - [INFO] - conversions - convert_image:75 - ✅ Erfolgreiche Ersatzkonvertierung zu PNG in 0.29 Sekunden
+2025-03-03 21:37:07,025 - [DEBUG] - conversions - convert_image:18 - Starte Konvertierung von https://cdn.discordapp.com/attachments/1346198382909198446/1346234957999374509/nc_chrome_dm.jpeg?ex=67c77281&is=67c62101&hm=ca4b586458a5a1bdf6138585b39deea8af32e7747b45dd344b88b4155516e826& zu dds
+2025-03-03 21:37:07,141 - [DEBUG] - conversions - convert_image:26 - Bild heruntergeladen: 162271 Bytes
+2025-03-03 21:37:07,141 - [DEBUG] - conversions - convert_image:33 - DDS-Konvertierung wird mit OpenCV vorbereitet...
+2025-03-03 21:37:07,204 - [DEBUG] - conversions - convert_image:43 - Temporäre PNG-Datei gespeichert: /tmp/input.png
+2025-03-03 21:37:07,211 - [DEBUG] - conversions - convert_image:52 - Bild Größe: 500x335
+2025-03-03 21:37:07,225 - [DEBUG] - conversions - convert_image:57 - Bild mit OpenCV verarbeitet und gespeichert: /tmp/output.png
+2025-03-03 21:37:07,226 - [DEBUG] - conversions - convert_image:66 - Temporäre Dateien gelöscht
+2025-03-03 21:37:07,226 - [WARNING] - conversions - convert_image:72 - ⚠️ DDS-Format nicht unterstützt. Stattdessen PNG zurückgegeben.
+2025-03-03 21:37:07,227 - [INFO] - conversions - convert_image:75 - ✅ Erfolgreiche Ersatzkonvertierung zu PNG in 0.20 Sekunden
+2025-03-03 21:37:07,231 - [INFO] - conversions - log_conversion:100 - Konvertierung erfolgreich: nc_chrome_dm.jpeg -> dds für Unbekannt
+2025-03-03 21:37:08,490 - [INFO] - conversions - log_conversion:100 - Konvertierung erfolgreich: nc_chrome_dm.jpeg -> dds für Unbekannt
