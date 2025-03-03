@@ -5,21 +5,26 @@ A powerful Discord bot for converting files and images into different formats. S
 ## Features
 
 **Note:** Currently, the bot only supports German for command responses, help messages, and other interactions.
+
 - **Supports all file formats**: Converts any uploaded file to the desired format.
 - **Multiple images at once**: Upload multiple images and convert them simultaneously.
 - **Simple slash commands**: Intuitive control directly in Discord.
 - **Admin functions**: View logs and restart the bot when needed.
 
 ## Commands
+
 ### User Commands
+
 - `/convert [format]` – Converts uploaded images to the desired format.
 - `/status` – Displays the current status of the queue.
 
 ### Admin Commands
+
 - `/logs [amount]` – Displays the latest logs (admins only).
 - `/restart` – Restarts the bot (admins only).
 
 ## Installation
+
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/your-github/discord-converter-bot.git
@@ -40,13 +45,17 @@ A powerful Discord bot for converting files and images into different formats. S
    ```
 
 ## Requirements
+
 - Python 3.x
 - Discord.py
 - Image and file handling libraries (e.g., Pillow, ffmpeg)
 
 ## Contributing
+
 Pull requests are welcome! Feel free to create an issue if you have suggestions or encounter problems.
 
 ## License
-This project is licensed under the **MIT License**.
 
+This project is open-source and licensed under the **MIT License**. Feel free to contribute and modify the code as needed.
+
+This project is licensed under the **MIT License**.
