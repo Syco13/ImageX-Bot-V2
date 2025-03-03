@@ -37,4 +37,4 @@ async def convert_image(image_url, target_format):
 
     except Exception as e:
         logger.error(f"❌ Fehler bei der Konvertierung: {e}")
-        return None
+        return Nonern None

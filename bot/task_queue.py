@@ -36,16 +36,17 @@ class ImageQueue:
 
     async def handle_conversion(self, ctx, image, target_format):
         from bot.converter import convert_image
+        from bot.logger import bot_logger as logger
 
         try:
             await ctx.send(f"⏳ `{image.filename}` wird nach `{target_format.upper()}` konvertiert...")
-            image_bytes = await convert_image(image.url, target_format)
+            image_bytes = await convert_image(image.url, target_format)t)
 
             if image_bytes:
                 await ctx.send(file=discord.File(image_bytes, filename=f"converted.{target_format}"))
-                get_logger().info(f"✅ `{image.filename}` wurde erfolgreich nach `{target_format.upper()}` konvertiert!")
+                logger.info(f"✅ `{image.filename}` wurde erfolgreich nach `{target_format.upper()}` konvertiert!")
             else:
                 await ctx.send("❌ Fehler bei der Konvertierung.")
         except Exception as e:
             await ctx.send(f"❌ Fehler: {e}")
-            get_logger().error(f"❌ Fehler in der Queue: {e}")
+            logger.error(f"❌ Fehler in der Queue: {e}")eue: {e}")

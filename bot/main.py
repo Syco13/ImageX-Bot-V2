@@ -69,7 +69,7 @@ async def convert(interaction: discord.Interaction, target_format: str):
         for image in images:
             await queue.add(message.channel, image, target_format)
 
-        await message.channel.send(f"⏳ **Deine Bilder werden in `{target_format}` konvertiert...**")
+        await message.channel.send(f"⏳ **Deine Bilder werden in `{target_format}` konvertiert...**", ephemeral=True)
     except asyncio.TimeoutError:
         # Wenn der Benutzer keine Bilder innerhalb der Zeitbeschränkung sendet
         follow_up = await interaction.original_response()
