@@ -99,4 +99,19 @@ async def restart(interaction: discord.Interaction):
     # Sicherstellen, dass das aktuelle Python-Executable verwendet wird
     os.execv(sys.executable, [sys.executable] + sys.argv)
 
+@bot.tree.command(name="help", description="Zeigt eine Liste aller Befehle")
+async def help_command(interaction: discord.Interaction):
+    embed = discord.Embed(title="ℹ️ **ImageX-Bot Hilfe**", color=discord.Color.green())
+    embed.add_field(name="/convert [format]", value="Konvertiert hochgeladene Bilder in ein anderes Format.", inline=False)
+    embed.add_field(name="/status", value="Zeigt den aktuellen Status der Warteschlange.", inline=False)
+    embed.add_field(name="/logs [Anzahl]", value="Zeigt die letzten Logs (nur für Admins).", inline=False)
+    embed.add_field(name="/restart", value="Startet den Bot neu (nur für Admins).", inline=False)
+
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+@bot.tree.command(name="ping", description="Zeigt die Latenz des Bots an")
+async def ping(interaction: discord.Interaction):
+    latency = round(bot.latency * 1000)
+    await interaction.response.send_message(f"🏓 **Pong!** Latenz: `{latency}ms`", ephemeral=True)
+
 bot.run(TOKEN)
