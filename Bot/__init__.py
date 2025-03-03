@@ -1,5 +1,5 @@
 # __init__.py für das bot-Modul
-from bot.main import bot
-from bot.queue import ImageQueue
-from bot.converter import convert_image
-from bot.logger import logger
+from .main import bot
+from .queue import ImageQueue
+from .converter import convert_image
+from .logger import logger
