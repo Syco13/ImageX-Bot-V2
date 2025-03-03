@@ -1,6 +1,8 @@
 import asyncio
 import discord
-from bot.logger import logger  # Kein Import von converter hier!
+def get_logger():
+    from bot.logger import logger
+    return logger
 
 class ImageQueue:
     def __init__(self):
@@ -35,7 +37,7 @@ class ImageQueue:
 
             if image_bytes:
                 await ctx.send(file=discord.File(image_bytes, filename=f"converted.{target_format}"))
-                logger.info(f"✅ `{image.filename}` wurde erfolgreich nach `{target_format.upper()}` konvertiert!")
+                get_logger().info("Eine Nachricht") (f"✅ `{image.filename}` wurde erfolgreich nach `{target_format.upper()}` konvertiert!")
             else:
                 await ctx.send("❌ Fehler bei der Konvertierung.")
         except Exception as e:
