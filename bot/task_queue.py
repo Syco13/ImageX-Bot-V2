@@ -1,5 +1,6 @@
 import asyncio
 import discord
+
 def get_logger():
     from bot.logger import logger
     return logger
@@ -21,7 +22,9 @@ class ImageQueue:
             for _ in range(min(4, self.queue.qsize())):
                 tasks.append(self.queue.get())
 
-            results = await asyncio.gather(*[self.handle_conversion(ctx, image, target_format) for ctx, image, target_format in tasks])
+            results = await asyncio.gather(
+                *[self.handle_conversion(ctx, image, target_format) for ctx, image, target_format in tasks]
+            )
 
             for _ in range(len(results)):
                 self.queue.task_done()
@@ -29,7 +32,7 @@ class ImageQueue:
         self.processing = False
 
     async def handle_conversion(self, ctx, image, target_format):
-        from bot.converter import convert_image  # Lazy Import nur innerhalb der Funktion!
+        from bot.converter import convert_image
 
         try:
             await ctx.send(f"⏳ `{image.filename}` wird nach `{target_format.upper()}` konvertiert...")
@@ -37,9 +40,9 @@ class ImageQueue:
 
             if image_bytes:
                 await ctx.send(file=discord.File(image_bytes, filename=f"converted.{target_format}"))
-                get_logger().info("Eine Nachricht") (f"✅ `{image.filename}` wurde erfolgreich nach `{target_format.upper()}` konvertiert!")
+                get_logger().info(f"✅ `{image.filename}` wurde erfolgreich nach `{target_format.upper()}` konvertiert!")
             else:
                 await ctx.send("❌ Fehler bei der Konvertierung.")
         except Exception as e:
             await ctx.send(f"❌ Fehler: {e}")
-            logger.error(f"❌ Fehler in der Queue: {e}")
+            get_logger().error(f"❌ Fehler in der Queue: {e}")

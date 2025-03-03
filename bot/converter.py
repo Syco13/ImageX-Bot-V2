@@ -5,7 +5,7 @@ import os
 import subprocess
 import logging
 
-# Logger ohne Import-Loop nutzen
+# Logger direkt ohne Import-Loop nutzen
 logger = logging.getLogger("bot")
 
 # ImageMagick für DDS-Support nutzen

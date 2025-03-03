@@ -8,7 +8,8 @@ from bot.config import ALLOWED_FORMATS, MAX_FILES_PER_REQUEST  # Fix: 'Bot.confi
 import time
 import os
 import sys
-from bot.queue import ImageQueue
+from bot.task_queue import ImageQueue  # Fix: 'bot.queue' → 'bot.task_queue'
+
 queue = ImageQueue()
 
 # Token sicher aus Environment-Variable lesen
