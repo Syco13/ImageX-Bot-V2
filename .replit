@@ -1,1 +1,8 @@
 run = "python3 bot/main.py"
+modules = ["python-3.12"]
+
+[deployment]
+run = ["sh", "-c", "python3 bot/main.py"]
+
+[nix]
+channel = "stable-24_05"
