@@ -14,4 +14,4 @@ ALLOWED_FORMATS = [
 ]
 
 # Maximale Anzahl an Dateien pro Anfrage
-MAX_FILES_PER_REQUEST = 4
+MAX_FILES_PER_REQUEST = 10

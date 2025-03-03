@@ -149,6 +149,185 @@ async def convert(interaction: discord.Interaction, target_format: str):
         log_command("convert", interaction.user.name, interaction.guild, interaction.channel, 
                    status="timeout - no images received")
 
+@bot.tree.command(name="remove-bg", description="Entferne den Hintergrund von Bildern")
+@app_commands.describe(target_format="Das Zielformat (z.B. png, jpg, webp)")
+async def remove_bg(interaction: discord.Interaction, target_format: str = "png"):
+    global last_request_time
+    current_time = time.time()
+    
+    from bot.logger import log_command, command_logger as cmd_logger
+    
+    cmd_logger.info(f"Remove-bg-Command ausgeführt von {interaction.user} in {interaction.guild.name if interaction.guild else 'DM'}")
+    cmd_logger.debug(f"Parameter: target_format={target_format}")
+
+    # Berechtigung prüfen
+    if not interaction.user.guild_permissions.attach_files:
+        cmd_logger.warning(f"❌ Berechtigungsfehler: {interaction.user} hat keine Berechtigung zum Hochladen von Dateien")
+        await interaction.response.send_message("❌ **Du darfst keine Dateien hochladen!**", ephemeral=True)
+        return
+
+    # Rate-Limit Check
+    if current_time - last_request_time < 5:
+        wait_time = 5 - (current_time - last_request_time)
+        cmd_logger.info(f"⏳ Rate-Limit für {interaction.user}: Muss noch {wait_time:.1f} Sekunden warten")
+        await interaction.response.send_message(f"⏳ Bitte warte noch `{wait_time:.1f}` Sekunden.", ephemeral=True)
+        return
+
+    # Format prüfen
+    if target_format.lower() not in ALLOWED_FORMATS:
+        cmd_logger.warning(f"❌ Ungültiges Format: {target_format} von {interaction.user}")
+        await interaction.response.send_message(f"❌ `{target_format}` ist kein unterstütztes Zielformat.", ephemeral=True)
+        return
+        
+    # Wir müssen dem Benutzer erst antworten und dann nach Anhängen fragen
+    cmd_logger.info(f"✅ {interaction.user} kann Bilder senden für Hintergrundentfernung und {target_format}-Konvertierung")
+    await interaction.response.send_message("⚠️ **Bitte sende jetzt die Bilder, von denen du den Hintergrund entfernen möchtest!**", ephemeral=True)
+    
+    # Funktion zum Sammeln der Anhänge
+    def check(message):
+        return message.author == interaction.user and message.attachments
+
+    last_request_time = current_time
+    
+    try:
+        # Warte auf die Nachricht mit Anhängen (Timeout nach 60 Sekunden)
+        cmd_logger.debug(f"Warte auf Bilder von {interaction.user}...")
+        message = await bot.wait_for('message', check=check, timeout=60.0)
+        
+        # Detaillierte Dateiinformationen loggen
+        for attachment in message.attachments:
+            cmd_logger.debug(f"Empfangen: {attachment.filename} ({attachment.size} Bytes, {attachment.content_type})")
+        
+        images = message.attachments[:MAX_FILES_PER_REQUEST]
+        if len(message.attachments) > MAX_FILES_PER_REQUEST:
+            cmd_logger.warning(f"⚠️ {interaction.user} hat zu viele Dateien gesendet. Nur {MAX_FILES_PER_REQUEST} werden verarbeitet.")
+            await message.channel.send(f"⚠️ Es werden nur die ersten {MAX_FILES_PER_REQUEST} Bilder verarbeitet.")
+            
+        cmd_logger.info(f"Bilder von {interaction.user.name} erhalten: {len(images)}/{len(message.attachments)} Dateien")
+
+        # Bilder in Warteschlange hinzufügen
+        for i, image in enumerate(images):
+            cmd_logger.debug(f"Füge Bild {i+1}/{len(images)} zur Queue hinzu: {image.filename}")
+            await queue.add(message.channel, image, target_format, remove_bg=True)
+
+        cmd_logger.info(f"✅ Alle {len(images)} Bilder zur Verarbeitung hinzugefügt für {interaction.user.name}")
+        await message.channel.send(f"⏳ **Bei deinen {len(images)} Bildern wird der Hintergrund entfernt und in `{target_format.upper()}` konvertiert...**")
+        
+        # Log-Command-Nutzung
+        log_command("remove-bg", interaction.user.name, interaction.guild, interaction.channel, 
+                   status=f"started background removal for {len(images)} images")
+        
+    except asyncio.TimeoutError:
+        # Wenn der Benutzer keine Bilder innerhalb der Zeitbeschränkung sendet
+        cmd_logger.warning(f"⏳ Zeitüberschreitung für {interaction.user.name} - keine Bilder erhalten nach 60 Sekunden")
+        follow_up = await interaction.original_response()
+        await follow_up.edit(content="❌ **Zeitüberschreitung! Keine Bilder erhalten.**")
+        
+        # Log-Command-Nutzung für fehlgeschlagene Anfrage
+        log_command("remove-bg", interaction.user.name, interaction.guild, interaction.channel, 
+                   status="timeout - no images received")
+
+@bot.tree.command(name="resize", description="Ändere die Größe von Bildern")
+@app_commands.describe(
+    target_format="Das Zielformat (z.B. png, jpg, webp)",
+    width="Neue Breite des Bildes in Pixeln",
+    height="Neue Höhe des Bildes in Pixeln",
+    remove_bg="Soll der Hintergrund entfernt werden?"
+)
+async def resize(interaction: discord.Interaction, width: int, height: int, target_format: str = "png", remove_bg: bool = False):
+    global last_request_time
+    current_time = time.time()
+    
+    from bot.logger import log_command, command_logger as cmd_logger
+    
+    cmd_logger.info(f"Resize-Command ausgeführt von {interaction.user} in {interaction.guild.name if interaction.guild else 'DM'}")
+    cmd_logger.debug(f"Parameter: width={width}, height={height}, target_format={target_format}, remove_bg={remove_bg}")
+
+    # Berechtigung prüfen
+    if not interaction.user.guild_permissions.attach_files:
+        cmd_logger.warning(f"❌ Berechtigungsfehler: {interaction.user} hat keine Berechtigung zum Hochladen von Dateien")
+        await interaction.response.send_message("❌ **Du darfst keine Dateien hochladen!**", ephemeral=True)
+        return
+
+    # Rate-Limit Check
+    if current_time - last_request_time < 5:
+        wait_time = 5 - (current_time - last_request_time)
+        cmd_logger.info(f"⏳ Rate-Limit für {interaction.user}: Muss noch {wait_time:.1f} Sekunden warten")
+        await interaction.response.send_message(f"⏳ Bitte warte noch `{wait_time:.1f}` Sekunden.", ephemeral=True)
+        return
+
+    # Format prüfen
+    if target_format.lower() not in ALLOWED_FORMATS:
+        cmd_logger.warning(f"❌ Ungültiges Format: {target_format} von {interaction.user}")
+        await interaction.response.send_message(f"❌ `{target_format}` ist kein unterstütztes Zielformat.", ephemeral=True)
+        return
+        
+    # Größe prüfen
+    if width <= 0 or height <= 0:
+        cmd_logger.warning(f"❌ Ungültige Größe: {width}x{height} von {interaction.user}")
+        await interaction.response.send_message("❌ **Breite und Höhe müssen größer als 0 sein!**", ephemeral=True)
+        return
+        
+    if width > 5000 or height > 5000:
+        cmd_logger.warning(f"❌ Zu große Bildabmessungen: {width}x{height} von {interaction.user}")
+        await interaction.response.send_message("❌ **Maximale Bildgröße ist 5000x5000 Pixel!**", ephemeral=True)
+        return
+    
+    # Wir müssen dem Benutzer erst antworten und dann nach Anhängen fragen
+    cmd_logger.info(f"✅ {interaction.user} kann Bilder senden für Größenänderung auf {width}x{height}")
+    await interaction.response.send_message("⚠️ **Bitte sende jetzt die Bilder, deren Größe du ändern möchtest!**", ephemeral=True)
+    
+    # Funktion zum Sammeln der Anhänge
+    def check(message):
+        return message.author == interaction.user and message.attachments
+
+    last_request_time = current_time
+    
+    try:
+        # Warte auf die Nachricht mit Anhängen (Timeout nach 60 Sekunden)
+        cmd_logger.debug(f"Warte auf Bilder von {interaction.user}...")
+        message = await bot.wait_for('message', check=check, timeout=60.0)
+        
+        # Detaillierte Dateiinformationen loggen
+        for attachment in message.attachments:
+            cmd_logger.debug(f"Empfangen: {attachment.filename} ({attachment.size} Bytes, {attachment.content_type})")
+        
+        images = message.attachments[:MAX_FILES_PER_REQUEST]
+        if len(message.attachments) > MAX_FILES_PER_REQUEST:
+            cmd_logger.warning(f"⚠️ {interaction.user} hat zu viele Dateien gesendet. Nur {MAX_FILES_PER_REQUEST} werden verarbeitet.")
+            await message.channel.send(f"⚠️ Es werden nur die ersten {MAX_FILES_PER_REQUEST} Bilder verarbeitet.")
+            
+        cmd_logger.info(f"Bilder von {interaction.user.name} erhalten: {len(images)}/{len(message.attachments)} Dateien")
+
+        # Bilder in Warteschlange hinzufügen
+        for i, image in enumerate(images):
+            cmd_logger.debug(f"Füge Bild {i+1}/{len(images)} zur Queue hinzu: {image.filename}")
+            await queue.add(message.channel, image, target_format, remove_bg=remove_bg, resize=(width, height))
+
+        operations = []
+        if remove_bg:
+            operations.append("Hintergrundentfernung")
+        operations.append(f"Größenänderung auf {width}x{height}")
+        operations.append(f"Konvertierung zu {target_format.upper()}")
+        operation_text = ", ".join(operations)
+        
+        cmd_logger.info(f"✅ Alle {len(images)} Bilder zur Verarbeitung hinzugefügt für {interaction.user.name}")
+        await message.channel.send(f"⏳ **Deine {len(images)} Bilder werden bearbeitet: {operation_text}...**")
+        
+        # Log-Command-Nutzung
+        log_command("resize", interaction.user.name, interaction.guild, interaction.channel, 
+                   status=f"started resizing {len(images)} images to {width}x{height}")
+        
+    except asyncio.TimeoutError:
+        # Wenn der Benutzer keine Bilder innerhalb der Zeitbeschränkung sendet
+        cmd_logger.warning(f"⏳ Zeitüberschreitung für {interaction.user.name} - keine Bilder erhalten nach 60 Sekunden")
+        follow_up = await interaction.original_response()
+        await follow_up.edit(content="❌ **Zeitüberschreitung! Keine Bilder erhalten.**")
+        
+        # Log-Command-Nutzung für fehlgeschlagene Anfrage
+        log_command("resize", interaction.user.name, interaction.guild, interaction.channel, 
+                   status="timeout - no images received")
+
 @bot.tree.command(name="status", description="Zeigt die aktuelle Warteschlange")
 async def status(interaction: discord.Interaction):
     queue_size = queue.queue.qsize()
@@ -194,12 +373,23 @@ async def restart(interaction: discord.Interaction):
 @bot.tree.command(name="help", description="Zeigt eine Liste aller Befehle")
 async def help_command(interaction: discord.Interaction):
     embed = discord.Embed(title="ℹ️ **ImageX-Bot Hilfe**", color=discord.Color.green())
-    embed.add_field(name="/convert [format]", value="Konvertiert hochgeladene Bilder in ein anderes Format.", inline=False)
-    embed.add_field(name="/format_info [format]", value="Zeigt Informationen über ein bestimmtes Bildformat.", inline=False)
-    embed.add_field(name="/status", value="Zeigt den aktuellen Status der Warteschlange.", inline=False)
-    embed.add_field(name="/logs [Anzahl]", value="Zeigt die letzten Logs (nur für Admins).", inline=False)
-    embed.add_field(name="/restart", value="Startet den Bot neu (nur für Admins).", inline=False)
-    embed.add_field(name="/ping", value="Zeigt die Latenz des Bots an.", inline=False)
+    
+    # Grundfunktionen
+    embed.add_field(name="📁 Grundfunktionen", value="Grundlegende Bildbearbeitungsbefehle", inline=False)
+    embed.add_field(name="/convert [format]", value="Konvertiert hochgeladene Bilder in ein anderes Format.", inline=True)
+    embed.add_field(name="/format_info [format]", value="Zeigt Informationen über ein bestimmtes Bildformat.", inline=True)
+    embed.add_field(name="/ping", value="Zeigt die Latenz des Bots an.", inline=True)
+    
+    # Erweiterte Bildbearbeitung
+    embed.add_field(name="🖼️ Erweiterte Bildbearbeitung", value="Spezielle Bildbearbeitungsfunktionen", inline=False)
+    embed.add_field(name="/remove-bg [format]", value="Entfernt den Hintergrund von Bildern und konvertiert sie ins angegebene Format.", inline=True)
+    embed.add_field(name="/resize [width] [height] [format] [remove_bg]", value="Ändert die Bildgröße und optional das Format und entfernt den Hintergrund.", inline=True)
+    
+    # Admin-Befehle
+    embed.add_field(name="⚙️ Admin-Befehle", value="Nur für Server-Administratoren", inline=False)
+    embed.add_field(name="/status", value="Zeigt den aktuellen Status der Warteschlange.", inline=True)
+    embed.add_field(name="/logs [Anzahl]", value="Zeigt die letzten Logs (nur für Admins).", inline=True)
+    embed.add_field(name="/restart", value="Startet den Bot neu (nur für Admins).", inline=True)
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
 

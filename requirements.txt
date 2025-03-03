@@ -12,3 +12,5 @@ loguru  # Erweiterte Logging-Funktionen
 pdf2image  # PDF in Bilder umwandeln
 img2pdf  # Bilder zu PDFs konvertieren
 reportlab  # PDFs generieren
+numpy
+rembg

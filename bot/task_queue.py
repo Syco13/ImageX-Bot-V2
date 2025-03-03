@@ -26,12 +26,12 @@ class ImageQueue:
             "start_time": None
         }
 
-    async def add(self, ctx, image, target_format="png"):
+    async def add(self, ctx, image, target_format="png", remove_bg=False, resize=None):
         queue_size = self.queue.qsize()
         self.logger.info(f"Bild zur Queue hinzugefügt: {image.filename} ({target_format}) von {ctx.author if hasattr(ctx, 'author') else 'Unbekannt'}")
         self.logger.debug(f"Queue-Größe vor Hinzufügen: {queue_size}")
 
-        await self.queue.put((ctx, image, target_format))
+        await self.queue.put((ctx, image, target_format, remove_bg, resize))
 
         if not self.processing:
             self.logger.info("Queue-Verarbeitung wird gestartet")
@@ -55,10 +55,11 @@ class ImageQueue:
                 self.logger.debug(f"Task {i+1} aus Queue entnommen: {task[1].filename}")
                 tasks.append(task)
 
-            # Now tasks contains tuples of (ctx, image, target_format)
+            # Now tasks contains tuples of (ctx, image, target_format, remove_bg, resize)
             self.logger.debug(f"Starte parallele Konvertierung von {len(tasks)} Bildern")
             results = await asyncio.gather(
-                *[self.handle_conversion(ctx, image, target_format) for ctx, image, target_format in tasks],
+                *[self.handle_conversion(ctx, image, target_format, remove_bg, resize) 
+                  for ctx, image, target_format, remove_bg, resize in tasks],
                 return_exceptions=True
             )
 
@@ -83,25 +84,34 @@ class ImageQueue:
         self.logger.info(f"Queue-Verarbeitung beendet nach {total_time:.2f} Sekunden")
         self.processing = False
 
-    async def handle_conversion(self, ctx, image, target_format):
+    async def handle_conversion(self, ctx, image, target_format, remove_bg=False, resize=None):
         from bot.converter import convert_image
         from bot.logger import log_conversion
 
         start_time = time.time()
-        self.logger.debug(f"Konvertierung gestartet: {image.filename} zu {target_format}")
+        self.logger.debug(f"Verarbeitung gestartet: {image.filename} zu {target_format}, remove_bg={remove_bg}, resize={resize}")
         user = ctx.author if hasattr(ctx, 'author') else 'Unbekannt'
 
         try:
-            self.logger.info(f"Konvertiere: `{image.filename}` → `{target_format.upper()}`")
-            await ctx.send(f"⏳ `{image.filename}` wird nach `{target_format.upper()}` konvertiert...")
+            operations = []
+            if remove_bg:
+                operations.append("Hintergrundentfernung")
+            if resize:
+                operations.append(f"Größenänderung auf {resize[0]}x{resize[1]}")
+            operations.append(f"Konvertierung zu {target_format.upper()}")
+            
+            operation_text = ", ".join(operations)
+            
+            self.logger.info(f"Verarbeite: `{image.filename}` → {operation_text}")
+            await ctx.send(f"⏳ `{image.filename}` wird bearbeitet: {operation_text}...")
 
             conversion_start = time.time()
-            image_bytes = await convert_image(image.url, target_format)
+            image_bytes = await convert_image(image.url, target_format, remove_bg, resize)
             conversion_time = time.time() - conversion_start
 
             if image_bytes:
                 file_size = len(image_bytes.getvalue())
-                self.logger.info(f"✅ Konvertierung erfolgreich: {image.filename} → {target_format.upper()} ({file_size} Bytes in {conversion_time:.2f}s)")
+                self.logger.info(f"✅ Verarbeitung erfolgreich: {image.filename} ({file_size} Bytes in {conversion_time:.2f}s)")
 
                 filename, file_extension = os.path.splitext(image.filename)
                 await ctx.send(file=discord.File(image_bytes, filename=f"{filename}.{target_format}"))

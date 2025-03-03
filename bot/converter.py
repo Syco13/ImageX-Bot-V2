@@ -8,14 +8,15 @@ import sys
 import traceback
 import cv2
 import numpy as np
+from rembg import remove
 
 # Logger direkt ohne Import-Loop nutzen
 logger = logging.getLogger("conversions")
 
-async def convert_image(image_url, target_format):
+async def convert_image(image_url, target_format, remove_bg=False, resize=None):
     start_time = time.time()
     try:
-        logger.debug(f"Starte Konvertierung von {image_url} zu {target_format}")
+        logger.debug(f"Starte Verarbeitung von {image_url} zu {target_format} (remove_bg={remove_bg}, resize={resize})")
         response = requests.get(image_url)
 
         if response.status_code != 200:
@@ -25,7 +26,33 @@ async def convert_image(image_url, target_format):
         image_bytes = io.BytesIO(response.content)
         logger.debug(f"Bild heruntergeladen: {len(response.content)} Bytes")
 
-        # Standardkonvertierungen mit Pillow
+        # Bild öffnen
+        img = Image.open(image_bytes)
+        
+        # Hintergrund entfernen wenn gewünscht
+        if remove_bg:
+            logger.debug("Entferne Hintergrund mit rembg...")
+            img_data = img.convert("RGBA")
+            img_data_bytes = io.BytesIO()
+            img_data.save(img_data_bytes, format="PNG")
+            img_data_bytes.seek(0)
+            
+            # Hintergrund entfernen
+            result = remove(img_data_bytes.getvalue())
+            img = Image.open(io.BytesIO(result))
+            logger.debug("Hintergrund erfolgreich entfernt")
+            
+        # Größe ändern wenn angegeben
+        if resize:
+            try:
+                width, height = resize
+                logger.debug(f"Ändere Bildgröße auf {width}x{height}...")
+                img = img.resize((width, height), Image.LANCZOS)
+                logger.debug(f"Bildgröße erfolgreich auf {width}x{height} geändert")
+            except Exception as e:
+                logger.error(f"Fehler bei der Größenänderung: {e}")
+        
+        # Ausgabe vorbereiten
         output_bytes = io.BytesIO()
 
         if target_format.lower() == "dds":
