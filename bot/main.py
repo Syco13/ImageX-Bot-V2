@@ -52,18 +52,18 @@ async def convert(interaction: discord.Interaction, target_format: str):
     def check(message):
         return message.author == interaction.user and message.attachments
     
-    try:
-        # Warte auf die Nachricht mit Anhängen (Timeout nach 60 Sekunden)
-        message = await bot.wait_for('message', check=check, timeout=60.0)
-        images = message.attachments[:MAX_FILES_PER_REQUEST]
-        logger.info(f"Bilder von {interaction.user.name} erhalten: {len(images)} Dateien")
-
     # Format prüfen
     if target_format.lower() not in ALLOWED_FORMATS:
         await interaction.response.send_message(f"❌ `{target_format}` ist kein unterstütztes Zielformat.", ephemeral=True)
         return
 
     last_request_time = current_time
+    
+    try:
+        # Warte auf die Nachricht mit Anhängen (Timeout nach 60 Sekunden)
+        message = await bot.wait_for('message', check=check, timeout=60.0)
+        images = message.attachments[:MAX_FILES_PER_REQUEST]
+        logger.info(f"Bilder von {interaction.user.name} erhalten: {len(images)} Dateien")
 
         # Bilder in Warteschlange hinzufügen
         for image in images:
