@@ -41,3 +41,15 @@
 2025-03-03 21:27:35,960 - [INFO] - bot - on_ready:41 - ====================================
 2025-03-03 21:27:35,961 - [INFO] - bot - on_ready:42 - 🤖 Bot ist vollständig gestartet und bereit!
 2025-03-03 21:27:35,961 - [INFO] - bot - on_ready:43 - ====================================
+2025-03-03 21:29:35,588 - [INFO] - bot - <module>:83 - ===== ImageX-Bot gestartet am 03.03.2025 21:29:35 =====
+2025-03-03 21:29:35,600 - [DEBUG] - bot - <module>:84 - Log-Level: 10
+2025-03-03 21:29:35,634 - [DEBUG] - bot - <module>:85 - Pfad: /home/runner/workspace
+2025-03-03 21:29:35,646 - [DEBUG] - bot - <module>:86 - Python Version: 3.12.7 (main, Oct  1 2024, 02:05:46) [GCC 13.3.0]
+2025-03-03 21:29:38,554 - [INFO] - bot - on_ready:28 - 🚀 ImageX-Bot#0233 ist online! Bot-ID: 1346093300360417341
+2025-03-03 21:29:38,554 - [DEBUG] - bot - on_ready:29 - In 1 Servern aktiv
+2025-03-03 21:29:38,554 - [DEBUG] - bot - on_ready:33 - Server: Tretowieren Studios (ID: 1334577356375068672) - 1 Mitglieder
+2025-03-03 21:29:38,804 - [INFO] - bot - on_ready:36 - ✅ Slash-Commands synchronisiert
+2025-03-03 21:29:38,805 - [INFO] - bot - on_ready:39 - ✅ Status gesetzt: 'ImageX 🔥 | /convert'
+2025-03-03 21:29:38,805 - [INFO] - bot - on_ready:41 - ====================================
+2025-03-03 21:29:38,805 - [INFO] - bot - on_ready:42 - 🤖 Bot ist vollständig gestartet und bereit!
+2025-03-03 21:29:38,805 - [INFO] - bot - on_ready:43 - ====================================

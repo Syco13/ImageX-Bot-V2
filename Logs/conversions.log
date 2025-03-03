@@ -18,3 +18,11 @@
 FileNotFoundError: [Errno 2] No such file or directory: '/usr/bin/convert'
 
 2025-03-03 21:28:53,735 - [INFO] - conversions - log_conversion:100 - Konvertierung fehlgeschlagen: dda9e551-31c7-43fb-b5f3-ac960502503f.png -> dds für Unbekannt
+2025-03-03 21:29:54,526 - [DEBUG] - conversions - convert_image:43 - Starte Konvertierung von https://cdn.discordapp.com/attachments/1346198382909198446/1346233146726940773/392691258ff3aea2d8225a1adfa496f2.png?ex=67c770d1&is=67c61f51&hm=b09a843c8a6555411ea570a4d287beb2feaf3281f712a9f27eec527075cf9785& zu dds
+2025-03-03 21:29:54,764 - [DEBUG] - conversions - convert_image:51 - Bild heruntergeladen: 247446 Bytes
+2025-03-03 21:29:54,775 - [DEBUG] - conversions - convert_image:54 - Bildformat erkannt: PNG, Größe: (736, 414), Modus: RGB
+2025-03-03 21:29:54,775 - [DEBUG] - conversions - convert_image:59 - DDS-Konvertierung mit ImageMagick wird durchgeführt...
+2025-03-03 21:29:54,827 - [DEBUG] - conversions - convert_image:65 - Temporäre PNG-Datei gespeichert: /tmp/input.png
+2025-03-03 21:29:54,829 - [ERROR] - conversions - convert_image:73 - ❌ ImageMagick nicht gefunden: [Errno 2] No such file or directory: 'convert'
+2025-03-03 21:29:54,829 - [ERROR] - conversions - convert_image:74 - Pfad, der verwendet wurde: convert
+2025-03-03 21:29:55,009 - [INFO] - conversions - log_conversion:100 - Konvertierung fehlgeschlagen: 392691258ff3aea2d8225a1adfa496f2.png -> dds für Unbekannt
