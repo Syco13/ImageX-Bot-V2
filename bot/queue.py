@@ -1,7 +1,6 @@
 import asyncio
 import discord
-from bot.converter import convert_image
-from bot.logger import logger
+from bot.logger import logger  # Kein Import von converter hier!
 
 class ImageQueue:
     def __init__(self):
@@ -28,6 +27,8 @@ class ImageQueue:
         self.processing = False
 
     async def handle_conversion(self, ctx, image, target_format):
+        from bot.converter import convert_image  # Lazy Import nur innerhalb der Funktion!
+
         try:
             await ctx.send(f"⏳ `{image.filename}` wird nach `{target_format.upper()}` konvertiert...")
             image_bytes = await convert_image(image.url, target_format)

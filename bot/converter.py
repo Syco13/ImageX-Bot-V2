@@ -3,7 +3,10 @@ import io
 import requests
 import os
 import subprocess
-from bot.logger import logger
+import logging
+
+# Logger ohne Import-Loop nutzen
+logger = logging.getLogger("bot")
 
 # ImageMagick für DDS-Support nutzen
 IMAGEMAGICK_PATH = "/usr/bin/convert"  # Anpassen, falls nötig
@@ -25,7 +28,6 @@ async def convert_image(image_url, target_format):
                 output_bytes.write(f.read())
             os.remove(input_path)
             os.remove(output_path)
-
         else:
             img.save(output_bytes, format=target_format.upper())
 
