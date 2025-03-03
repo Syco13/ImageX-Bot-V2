@@ -20,8 +20,11 @@ class ImageQueue:
         while not self.queue.empty():
             tasks = []
             for _ in range(min(4, self.queue.qsize())):
-                tasks.append(self.queue.get())
+                # Properly await the queue.get() call
+                task = await self.queue.get()
+                tasks.append(task)
 
+            # Now tasks contains tuples of (ctx, image, target_format)
             results = await asyncio.gather(
                 *[self.handle_conversion(ctx, image, target_format) for ctx, image, target_format in tasks]
             )
