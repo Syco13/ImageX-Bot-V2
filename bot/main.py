@@ -6,11 +6,11 @@ import time
 import os
 import sys
 
-from .converter import convert_image
-from .config import ALLOWED_FORMATS, MAX_FILES_PER_REQUEST
-from .task_queue import ImageQueue
+from bot.converter import convert_image
+from bot.config import ALLOWED_FORMATS, MAX_FILES_PER_REQUEST
+from bot.task_queue import ImageQueue
 
-from .logger import bot_logger as logger  # Verhindert Import-Zirkel
+from bot.logger import bot_logger as logger  # Verhindert Import-Zirkel
 
 queue = ImageQueue()
 
