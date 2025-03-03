@@ -40,7 +40,7 @@ class ImageQueue:
 
         try:
             await ctx.send(f"⏳ `{image.filename}` wird nach `{target_format.upper()}` konvertiert...")
-            image_bytes = await convert_image(image.url, target_format)t)
+            image_bytes = await convert_image(image.url, target_format)
 
             if image_bytes:
                 await ctx.send(file=discord.File(image_bytes, filename=f"converted.{target_format}"))
