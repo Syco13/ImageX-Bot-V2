@@ -18,6 +18,7 @@ queue = ImageQueue()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 intents = discord.Intents.default()
+intents.message_content = True
 bot = commands.Bot(command_prefix="/", intents=intents)
 
 last_request_time = 0
