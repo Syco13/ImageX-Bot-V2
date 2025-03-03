@@ -1,14 +1,15 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from bot.queue import queue
-from bot.logger import logger
-from bot.config import ALLOWED_FORMATS, MAX_FILES_PER_REQUEST
+from Bot.queue import queue
+from Bot.logger import logger
+from Bot.config import ALLOWED_FORMATS, MAX_FILES_PER_REQUEST
 import time
 import os
 import sys
 
-TOKEN = "DEIN_BOT_TOKEN"
+# Token sicher aus Environment-Variable lesen
+TOKEN = os.getenv("DISCORD_TOKEN")
 
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="/", intents=intents)
@@ -26,26 +27,31 @@ async def convert(interaction: discord.Interaction, target_format: str):
     global last_request_time
     current_time = time.time()
 
+    # Berechtigung prüfen
     if not interaction.user.guild_permissions.attach_files:
         await interaction.response.send_message("❌ **Du darfst keine Dateien hochladen!**", ephemeral=True)
         return
 
-    if current_time - last_request_time < 5:  # 5 Sekunden Global-Rate-Limit
+    # Rate-Limit Check
+    if current_time - last_request_time < 5:
         await interaction.response.send_message(f"⏳ Bitte warte noch `{5 - (current_time - last_request_time):.1f}` Sekunden.", ephemeral=True)
         return
 
-    if not interaction.message.attachments:
+    # Anhänge prüfen (Fix: interaction.message gibt es nicht!)
+    if not interaction.attachments:
         await interaction.response.send_message("⚠️ **Bitte lade mindestens eine Datei hoch!**", ephemeral=True)
         return
 
-    images = interaction.message.attachments[:MAX_FILES_PER_REQUEST]
+    images = interaction.attachments[:MAX_FILES_PER_REQUEST]
 
+    # Format prüfen
     if target_format.lower() not in ALLOWED_FORMATS:
         await interaction.response.send_message(f"❌ `{target_format}` ist kein unterstütztes Zielformat.", ephemeral=True)
         return
 
     last_request_time = current_time
 
+    # Bilder in Warteschlange hinzufügen
     for image in images:
         await queue.add(interaction, image, target_format)
 
@@ -68,11 +74,16 @@ async def logs(interaction: discord.Interaction, amount: int = 10):
         await interaction.response.send_message("❌ **Du hast keine Berechtigung, die Logs zu sehen!**", ephemeral=True)
         return
 
-    with open("logs/bot.log", "r") as log_file:
+    log_path = "Logs/bot.log"  # Fix: Logs statt logs
+    if not os.path.exists(log_path):
+        await interaction.response.send_message("🚫 **Es gibt noch keine Logs!**", ephemeral=True)
+        return
+
+    with open(log_path, "r") as log_file:
         log_lines = log_file.readlines()[-amount:]
 
     embed = discord.Embed(title="📜 Letzte Logs", color=discord.Color.dark_blue())
-    embed.description = "\n".join([f"📝 `{line.strip()}`" for line in log_lines])
+    embed.description = "\n".join([f"📝 `{line.strip()}`" for line in log_lines]) or "ℹ️ Keine Logs vorhanden."
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -84,6 +95,8 @@ async def restart(interaction: discord.Interaction):
 
     await interaction.response.send_message("♻️ **Neustart wird ausgeführt...**", ephemeral=True)
     logger.info("🔄 Bot wird neu gestartet!")
-    os.execv(sys.executable, ['python'] + sys.argv)
+
+    # Sicherstellen, dass das aktuelle Python-Executable verwendet wird
+    os.execv(sys.executable, [sys.executable] + sys.argv)
 
 bot.run(TOKEN)
