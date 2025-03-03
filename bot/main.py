@@ -2,13 +2,15 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import asyncio
-from bot.converter import convert_image
-from bot.logger import logger  # Fix: 'Bot.logger' → 'bot.logger'
-from bot.config import ALLOWED_FORMATS, MAX_FILES_PER_REQUEST  # Fix: 'Bot.config' → 'bot.config'
 import time
 import os
 import sys
-from bot.task_queue import ImageQueue  # Fix: 'bot.queue' → 'bot.task_queue'
+
+from bot.converter import convert_image
+from bot.config import ALLOWED_FORMATS, MAX_FILES_PER_REQUEST
+from bot.task_queue import ImageQueue
+
+from bot.logger import logger  # Jetzt ganz unten importieren!
 
 queue = ImageQueue()
 
