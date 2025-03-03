@@ -35,3 +35,7 @@ def cleanup_old_logs():
 
 # Cleanup starten
 cleanup_old_logs()
+
+# Globaler Logger, um ihn überall zu verwenden
+logger = bot_logger
+
