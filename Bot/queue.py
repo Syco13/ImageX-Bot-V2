@@ -1,4 +1,5 @@
 import asyncio
+import discord
 from bot.converter import convert_image
 from bot.logger import logger
 
@@ -16,7 +17,7 @@ class ImageQueue:
     async def process_queue(self):
         while not self.queue.empty():
             tasks = []
-            for _ in range(min(4, self.queue.qsize())):  # Bis zu 4 Dateien parallel verarbeiten
+            for _ in range(min(4, self.queue.qsize())):
                 tasks.append(self.queue.get())
 
             results = await asyncio.gather(*[self.handle_conversion(ctx, image, target_format) for ctx, image, target_format in tasks])

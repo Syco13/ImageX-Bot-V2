@@ -2,7 +2,7 @@ import logging
 import os
 from logging.handlers import RotatingFileHandler
 
-LOG_DIR = "logs"
+LOG_DIR = "Logs"
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
 
