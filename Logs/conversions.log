@@ -96,3 +96,9 @@ FileNotFoundError: [Errno 2] No such file or directory: '/usr/bin/convert'
 2025-03-03 21:37:07,227 - [INFO] - conversions - convert_image:75 - ✅ Erfolgreiche Ersatzkonvertierung zu PNG in 0.20 Sekunden
 2025-03-03 21:37:07,231 - [INFO] - conversions - log_conversion:100 - Konvertierung erfolgreich: nc_chrome_dm.jpeg -> dds für Unbekannt
 2025-03-03 21:37:08,490 - [INFO] - conversions - log_conversion:100 - Konvertierung erfolgreich: nc_chrome_dm.jpeg -> dds für Unbekannt
+2025-03-03 21:40:20,192 - [DEBUG] - conversions - convert_image:18 - Starte Konvertierung von https://cdn.discordapp.com/attachments/1346198382909198446/1346235771316736032/ctrans.dds?ex=67c77343&is=67c621c3&hm=b4e272e6faa0988fed016d46bace7b7521233f875097e7a5e440c5d7d6517851& zu png
+2025-03-03 21:40:20,602 - [DEBUG] - conversions - convert_image:26 - Bild heruntergeladen: 349680 Bytes
+2025-03-03 21:40:20,602 - [DEBUG] - conversions - convert_image:91 - Standard-Konvertierung zu PNG wird durchgeführt...
+2025-03-03 21:40:20,766 - [DEBUG] - conversions - convert_image:94 - Konvertierung zu PNG erfolgreich
+2025-03-03 21:40:20,767 - [INFO] - conversions - convert_image:98 - ✅ Erfolgreiche Konvertierung zu png in 0.58 Sekunden
+2025-03-03 21:40:21,212 - [INFO] - conversions - log_conversion:100 - Konvertierung erfolgreich: ctrans.dds -> png für Unbekannt
