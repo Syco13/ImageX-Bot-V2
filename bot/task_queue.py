@@ -1,5 +1,8 @@
 import asyncio
 import discord
+import os
+from datetime import datetime
+import logging
 
 def get_logger():
     from bot.logger import logger
@@ -27,9 +30,9 @@ class ImageQueue:
         queue_size = self.queue.qsize()
         self.logger.info(f"Bild zur Queue hinzugefügt: {image.filename} ({target_format}) von {ctx.author if hasattr(ctx, 'author') else 'Unbekannt'}")
         self.logger.debug(f"Queue-Größe vor Hinzufügen: {queue_size}")
-        
+
         await self.queue.put((ctx, image, target_format))
-        
+
         if not self.processing:
             self.logger.info("Queue-Verarbeitung wird gestartet")
             self.processing = True
@@ -40,12 +43,12 @@ class ImageQueue:
 
     async def process_queue(self):
         self.logger.info(f"Queue-Verarbeitung gestartet, {self.queue.qsize()} Bilder in der Warteschlange")
-        
+
         while not self.queue.empty():
             start_batch = time.time()
             batch_size = min(4, self.queue.qsize())
             self.logger.info(f"Verarbeite Batch mit {batch_size} Bildern")
-            
+
             tasks = []
             for i in range(batch_size):
                 task = await self.queue.get()
@@ -83,7 +86,7 @@ class ImageQueue:
     async def handle_conversion(self, ctx, image, target_format):
         from bot.converter import convert_image
         from bot.logger import log_conversion
-        
+
         start_time = time.time()
         self.logger.debug(f"Konvertierung gestartet: {image.filename} zu {target_format}")
         user = ctx.author if hasattr(ctx, 'author') else 'Unbekannt'
@@ -91,16 +94,17 @@ class ImageQueue:
         try:
             self.logger.info(f"Konvertiere: `{image.filename}` → `{target_format.upper()}`")
             await ctx.send(f"⏳ `{image.filename}` wird nach `{target_format.upper()}` konvertiert...")
-            
+
             conversion_start = time.time()
             image_bytes = await convert_image(image.url, target_format)
             conversion_time = time.time() - conversion_start
-            
+
             if image_bytes:
                 file_size = len(image_bytes.getvalue())
                 self.logger.info(f"✅ Konvertierung erfolgreich: {image.filename} → {target_format.upper()} ({file_size} Bytes in {conversion_time:.2f}s)")
-                
-                await ctx.send(file=discord.File(image_bytes, filename=f"converted.{target_format}"))
+
+                filename, file_extension = os.path.splitext(image.filename)
+                await ctx.send(file=discord.File(image_bytes, filename=f"{filename}.{target_format}"))
                 log_conversion(user, image.filename, target_format, success=True)
                 return True
             else:
@@ -117,7 +121,7 @@ class ImageQueue:
             error_trace = traceback.format_exc()
             self.logger.error(f"❌ Fehler in der Queue: {type(e).__name__}: {e}")
             self.logger.error(f"Traceback: {error_trace}")
-            
+
             # Benutzerfreundliche Fehlermeldung
             await ctx.send(f"❌ Fehler: {e}")
             return False
