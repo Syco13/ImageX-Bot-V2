@@ -1,0 +1,99 @@
+2025-03-03 21:28:42,391 - [INFO] - commands - convert:82 - Convert-Command ausgeführt von syco14 in Tretowieren Studios
+2025-03-03 21:28:42,391 - [DEBUG] - commands - convert:83 - Parameter: target_format=dds
+2025-03-03 21:28:42,391 - [INFO] - commands - convert:105 - ✅ syco14 kann Bilder senden für dds-Konvertierung
+2025-03-03 21:28:42,572 - [DEBUG] - commands - convert:116 - Warte auf Bilder von syco14...
+2025-03-03 21:28:52,242 - [DEBUG] - commands - convert:121 - Empfangen: dda9e551-31c7-43fb-b5f3-ac960502503f.png (1411061 Bytes, image/png)
+2025-03-03 21:28:52,242 - [INFO] - commands - convert:128 - Bilder von syco14 erhalten: 1/1 Dateien
+2025-03-03 21:28:52,242 - [DEBUG] - commands - convert:132 - Füge Bild 1/1 zur Queue hinzu: dda9e551-31c7-43fb-b5f3-ac960502503f.png
+2025-03-03 21:28:52,243 - [INFO] - commands - convert:135 - ✅ Alle 1 Bilder zur Verarbeitung hinzugefügt für syco14
+2025-03-03 21:28:52,529 - [INFO] - commands - log_command:95 - Command 'convert' started conversion of 1 images to dds by syco14 in Tretowieren Studios/test
+2025-03-03 21:29:43,051 - [INFO] - commands - convert:82 - Convert-Command ausgeführt von nice161639 in Tretowieren Studios
+2025-03-03 21:29:43,051 - [DEBUG] - commands - convert:83 - Parameter: target_format=dds
+2025-03-03 21:29:43,051 - [INFO] - commands - convert:105 - ✅ nice161639 kann Bilder senden für dds-Konvertierung
+2025-03-03 21:29:43,197 - [DEBUG] - commands - convert:116 - Warte auf Bilder von nice161639...
+2025-03-03 21:29:54,116 - [DEBUG] - commands - convert:121 - Empfangen: 392691258ff3aea2d8225a1adfa496f2.png (247446 Bytes, image/png)
+2025-03-03 21:29:54,116 - [INFO] - commands - convert:128 - Bilder von nice161639 erhalten: 1/1 Dateien
+2025-03-03 21:29:54,116 - [DEBUG] - commands - convert:132 - Füge Bild 1/1 zur Queue hinzu: 392691258ff3aea2d8225a1adfa496f2.png
+2025-03-03 21:29:54,117 - [INFO] - commands - convert:135 - ✅ Alle 1 Bilder zur Verarbeitung hinzugefügt für nice161639
+2025-03-03 21:29:54,279 - [INFO] - commands - log_command:95 - Command 'convert' started conversion of 1 images to dds by nice161639 in Tretowieren Studios/converter
+2025-03-03 21:34:08,773 - [INFO] - commands - convert:82 - Convert-Command ausgeführt von nice161639 in Tretowieren Studios
+2025-03-03 21:34:08,775 - [DEBUG] - commands - convert:83 - Parameter: target_format=dds
+2025-03-03 21:34:08,776 - [INFO] - commands - convert:105 - ✅ nice161639 kann Bilder senden für dds-Konvertierung
+2025-03-03 21:34:09,078 - [DEBUG] - commands - convert:116 - Warte auf Bilder von nice161639...
+2025-03-03 21:35:09,099 - [WARNING] - commands - convert:144 - ⏳ Zeitüberschreitung für nice161639 - keine Bilder erhalten nach 60 Sekunden
+2025-03-03 21:35:09,471 - [INFO] - commands - log_command:95 - Command 'convert' timeout - no images received by nice161639 in Tretowieren Studios/converter
+2025-03-03 21:35:14,010 - [INFO] - commands - convert:82 - Convert-Command ausgeführt von syco14 in Tretowieren Studios
+2025-03-03 21:35:14,010 - [DEBUG] - commands - convert:83 - Parameter: target_format=dds
+2025-03-03 21:35:14,010 - [INFO] - commands - convert:105 - ✅ syco14 kann Bilder senden für dds-Konvertierung
+2025-03-03 21:35:14,148 - [DEBUG] - commands - convert:116 - Warte auf Bilder von syco14...
+2025-03-03 21:35:22,151 - [DEBUG] - commands - convert:121 - Empfangen: dda9e551-31c7-43fb-b5f3-ac960502503f.png (1411061 Bytes, image/png)
+2025-03-03 21:35:22,151 - [INFO] - commands - convert:128 - Bilder von syco14 erhalten: 1/1 Dateien
+2025-03-03 21:35:22,151 - [DEBUG] - commands - convert:132 - Füge Bild 1/1 zur Queue hinzu: dda9e551-31c7-43fb-b5f3-ac960502503f.png
+2025-03-03 21:35:22,154 - [INFO] - commands - convert:135 - ✅ Alle 1 Bilder zur Verarbeitung hinzugefügt für syco14
+2025-03-03 21:35:22,317 - [INFO] - commands - log_command:95 - Command 'convert' started conversion of 1 images to dds by syco14 in Tretowieren Studios/test
+2025-03-03 21:35:39,220 - [INFO] - commands - convert:82 - Convert-Command ausgeführt von syco14 in Tretowieren Studios
+2025-03-03 21:35:39,220 - [DEBUG] - commands - convert:83 - Parameter: target_format=dds
+2025-03-03 21:35:39,220 - [INFO] - commands - convert:105 - ✅ syco14 kann Bilder senden für dds-Konvertierung
+2025-03-03 21:35:39,377 - [DEBUG] - commands - convert:116 - Warte auf Bilder von syco14...
+2025-03-03 21:35:49,993 - [DEBUG] - commands - convert:121 - Empfangen: dda9e551-31c7-43fb-b5f3-ac960502503f.png (1411061 Bytes, image/png)
+2025-03-03 21:35:49,993 - [DEBUG] - commands - convert:121 - Empfangen: dda9e551-31c7-43fb-b5f3-ac960502503f.webp (250142 Bytes, image/webp)
+2025-03-03 21:35:49,994 - [DEBUG] - commands - convert:121 - Empfangen: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.png (1285714 Bytes, image/png)
+2025-03-03 21:35:49,994 - [DEBUG] - commands - convert:121 - Empfangen: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp (239560 Bytes, image/webp)
+2025-03-03 21:35:49,994 - [INFO] - commands - convert:128 - Bilder von syco14 erhalten: 4/4 Dateien
+2025-03-03 21:35:49,994 - [DEBUG] - commands - convert:132 - Füge Bild 1/4 zur Queue hinzu: dda9e551-31c7-43fb-b5f3-ac960502503f.png
+2025-03-03 21:35:49,996 - [DEBUG] - commands - convert:132 - Füge Bild 2/4 zur Queue hinzu: dda9e551-31c7-43fb-b5f3-ac960502503f.webp
+2025-03-03 21:35:49,997 - [DEBUG] - commands - convert:132 - Füge Bild 3/4 zur Queue hinzu: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.png
+2025-03-03 21:35:49,997 - [DEBUG] - commands - convert:132 - Füge Bild 4/4 zur Queue hinzu: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp
+2025-03-03 21:35:49,997 - [INFO] - commands - convert:135 - ✅ Alle 4 Bilder zur Verarbeitung hinzugefügt für syco14
+2025-03-03 21:35:54,717 - [INFO] - commands - log_command:95 - Command 'convert' started conversion of 4 images to dds by syco14 in Tretowieren Studios/test
+2025-03-03 21:36:47,530 - [INFO] - commands - convert:82 - Convert-Command ausgeführt von nice161639 in Tretowieren Studios
+2025-03-03 21:36:47,531 - [DEBUG] - commands - convert:83 - Parameter: target_format=dds
+2025-03-03 21:36:47,531 - [INFO] - commands - convert:105 - ✅ nice161639 kann Bilder senden für dds-Konvertierung
+2025-03-03 21:36:47,671 - [DEBUG] - commands - convert:116 - Warte auf Bilder von nice161639...
+2025-03-03 21:37:00,284 - [INFO] - commands - convert:82 - Convert-Command ausgeführt von nice161639 in Tretowieren Studios
+2025-03-03 21:37:00,284 - [DEBUG] - commands - convert:83 - Parameter: target_format=dds
+2025-03-03 21:37:00,284 - [INFO] - commands - convert:105 - ✅ nice161639 kann Bilder senden für dds-Konvertierung
+2025-03-03 21:37:00,489 - [DEBUG] - commands - convert:116 - Warte auf Bilder von nice161639...
+2025-03-03 21:37:05,905 - [DEBUG] - commands - convert:121 - Empfangen: nc_chrome_dm.jpeg (162271 Bytes, image/jpeg)
+2025-03-03 21:37:05,905 - [INFO] - commands - convert:128 - Bilder von nice161639 erhalten: 1/1 Dateien
+2025-03-03 21:37:05,905 - [DEBUG] - commands - convert:132 - Füge Bild 1/1 zur Queue hinzu: nc_chrome_dm.jpeg
+2025-03-03 21:37:05,905 - [INFO] - commands - convert:135 - ✅ Alle 1 Bilder zur Verarbeitung hinzugefügt für nice161639
+2025-03-03 21:37:05,906 - [DEBUG] - commands - convert:121 - Empfangen: nc_chrome_dm.jpeg (162271 Bytes, image/jpeg)
+2025-03-03 21:37:05,906 - [INFO] - commands - convert:128 - Bilder von nice161639 erhalten: 1/1 Dateien
+2025-03-03 21:37:05,906 - [DEBUG] - commands - convert:132 - Füge Bild 1/1 zur Queue hinzu: nc_chrome_dm.jpeg
+2025-03-03 21:37:05,907 - [INFO] - commands - convert:135 - ✅ Alle 1 Bilder zur Verarbeitung hinzugefügt für nice161639
+2025-03-03 21:37:06,206 - [INFO] - commands - log_command:95 - Command 'convert' started conversion of 1 images to dds by nice161639 in Tretowieren Studios/converter
+2025-03-03 21:37:08,078 - [INFO] - commands - log_command:95 - Command 'convert' started conversion of 1 images to dds by nice161639 in Tretowieren Studios/converter
+2025-03-03 21:37:29,641 - [INFO] - commands - convert:82 - Convert-Command ausgeführt von syco14 in Tretowieren Studios
+2025-03-03 21:37:29,641 - [DEBUG] - commands - convert:83 - Parameter: target_format=dds
+2025-03-03 21:37:29,642 - [INFO] - commands - convert:105 - ✅ syco14 kann Bilder senden für dds-Konvertierung
+2025-03-03 21:37:29,828 - [DEBUG] - commands - convert:116 - Warte auf Bilder von syco14...
+2025-03-03 21:38:29,833 - [WARNING] - commands - convert:144 - ⏳ Zeitüberschreitung für syco14 - keine Bilder erhalten nach 60 Sekunden
+2025-03-03 21:38:30,300 - [INFO] - commands - log_command:95 - Command 'convert' timeout - no images received by syco14 in Tretowieren Studios/test
+2025-03-03 21:40:11,179 - [INFO] - commands - convert:82 - Convert-Command ausgeführt von nice161639 in Tretowieren Studios
+2025-03-03 21:40:11,179 - [DEBUG] - commands - convert:83 - Parameter: target_format=png
+2025-03-03 21:40:11,180 - [INFO] - commands - convert:105 - ✅ nice161639 kann Bilder senden für png-Konvertierung
+2025-03-03 21:40:11,436 - [DEBUG] - commands - convert:116 - Warte auf Bilder von nice161639...
+2025-03-03 21:40:19,859 - [DEBUG] - commands - convert:121 - Empfangen: ctrans.dds (349680 Bytes, None)
+2025-03-03 21:40:19,859 - [INFO] - commands - convert:128 - Bilder von nice161639 erhalten: 1/1 Dateien
+2025-03-03 21:40:19,859 - [DEBUG] - commands - convert:132 - Füge Bild 1/1 zur Queue hinzu: ctrans.dds
+2025-03-03 21:40:19,859 - [INFO] - commands - convert:135 - ✅ Alle 1 Bilder zur Verarbeitung hinzugefügt für nice161639
+2025-03-03 21:40:20,067 - [INFO] - commands - log_command:95 - Command 'convert' started conversion of 1 images to png by nice161639 in Tretowieren Studios/converter
+2025-03-03 21:43:01,989 - [INFO] - commands - convert:82 - Convert-Command ausgeführt von nice161639 in Tretowieren Studios
+2025-03-03 21:43:01,990 - [DEBUG] - commands - convert:83 - Parameter: target_format=dds
+2025-03-03 21:43:01,990 - [INFO] - commands - convert:105 - ✅ nice161639 kann Bilder senden für dds-Konvertierung
+2025-03-03 21:43:02,222 - [DEBUG] - commands - convert:116 - Warte auf Bilder von nice161639...
+2025-03-03 21:43:05,654 - [DEBUG] - commands - convert:121 - Empfangen: ctrans.png (79613 Bytes, image/png)
+2025-03-03 21:43:05,655 - [INFO] - commands - convert:128 - Bilder von nice161639 erhalten: 1/1 Dateien
+2025-03-03 21:43:05,655 - [DEBUG] - commands - convert:132 - Füge Bild 1/1 zur Queue hinzu: ctrans.png
+2025-03-03 21:43:05,655 - [INFO] - commands - convert:135 - ✅ Alle 1 Bilder zur Verarbeitung hinzugefügt für nice161639
+2025-03-03 21:43:05,805 - [INFO] - commands - log_command:95 - Command 'convert' started conversion of 1 images to dds by nice161639 in Tretowieren Studios/converter
+2025-03-03 21:50:31,704 - [INFO] - commands - convert:82 - Convert-Command ausgeführt von syco14 in Tretowieren Studios
+2025-03-03 21:50:31,704 - [DEBUG] - commands - convert:83 - Parameter: target_format=dds
+2025-03-03 21:50:31,704 - [INFO] - commands - convert:105 - ✅ syco14 kann Bilder senden für dds-Konvertierung
+2025-03-03 21:50:31,872 - [DEBUG] - commands - convert:116 - Warte auf Bilder von syco14...
+2025-03-03 21:50:39,763 - [DEBUG] - commands - convert:121 - Empfangen: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp (239560 Bytes, image/webp)
+2025-03-03 21:50:39,763 - [INFO] - commands - convert:128 - Bilder von syco14 erhalten: 1/1 Dateien
+2025-03-03 21:50:39,763 - [DEBUG] - commands - convert:132 - Füge Bild 1/1 zur Queue hinzu: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp
+2025-03-03 21:50:39,764 - [INFO] - commands - convert:135 - ✅ Alle 1 Bilder zur Verarbeitung hinzugefügt für syco14
+2025-03-03 21:50:40,010 - [INFO] - commands - log_command:95 - Command 'convert' started conversion of 1 images to dds by syco14 in Tretowieren Studios/test

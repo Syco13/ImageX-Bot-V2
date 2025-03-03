@@ -1,100 +1,118 @@
-
 import logging
 import os
-import sys
+import datetime
 from logging.handlers import RotatingFileHandler
-from datetime import datetime
 
 LOG_DIR = "Logs"
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
 
-# Farbiges Log-Format für Konsole mit zusätzlichen Informationen
+# Log-Format mit Farben für die Konsole
 class ColoredFormatter(logging.Formatter):
-    """Erweiterter farbiger Log-Formatter für die Konsole mit mehr Details"""
-    
     COLORS = {
-        'DEBUG': '\033[94m',     # Blau
-        'INFO': '\033[92m',      # Grün
-        'WARNING': '\033[93m',   # Gelb
-        'ERROR': '\033[91m',     # Rot
-        'CRITICAL': '\033[91m\033[1m',  # Fett-Rot
-        'RESET': '\033[0m'       # Reset
+        'DEBUG': '\033[94m',  # Blau
+        'INFO': '\033[92m',   # Grün
+        'WARNING': '\033[93m', # Gelb
+        'ERROR': '\033[91m',  # Rot
+        'CRITICAL': '\033[91m\033[1m',  # Fettgedruckt Rot
+        'RESET': '\033[0m'    # Reset
     }
     
     def format(self, record):
         log_message = super().format(record)
         levelname = record.levelname
         if levelname in self.COLORS:
-            log_message = f"{self.COLORS[levelname]}{log_message}{self.COLORS['RESET']}"
+            return f"{self.COLORS[levelname]}{log_message}{self.COLORS['RESET']}"
         return log_message
 
-# Erweiterte Log-Formate mit mehr Details
-file_format = logging.Formatter("%(asctime)s - [%(levelname)s] - %(name)s - %(funcName)s:%(lineno)d - %(message)s")
-console_format = ColoredFormatter("%(asctime)s - [%(levelname)s] - %(name)s - %(funcName)s:%(lineno)d - %(message)s")
+# Log-Formate für Datei und Konsole
+file_formatter = logging.Formatter("%(asctime)s - [%(levelname)s] - %(name)s - %(message)s")
+console_formatter = ColoredFormatter("%(asctime)s - [%(levelname)s] - %(name)s - %(message)s")
+
+# Konsolen-Handler für Entwicklung
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(console_formatter)
+console_handler.setLevel(logging.INFO)
 
 # Log-Dateien mit Rotation (max 5 MB, 3 Backups)
-def setup_logger(name, filename, console_output=True, level=logging.INFO):
+def setup_logger(name, filename, level=logging.INFO):
+    """
+    Erstellt einen Logger mit Datei- und Konsolenausgabe.
+    
+    Args:
+        name (str): Name des Loggers
+        filename (str): Dateiname für die Log-Datei
+        level (int): Log-Level (Standard: INFO)
+        
+    Returns:
+        logging.Logger: Konfigurierter Logger
+    """
+    # Datei-Handler
+    file_handler = RotatingFileHandler(
+        f"{LOG_DIR}/{filename}", 
+        maxBytes=5*1024*1024,  # 5 MB
+        backupCount=3,
+        encoding='utf-8'
+    )
+    file_handler.setFormatter(file_formatter)
+    file_handler.setLevel(level)
+    
+    # Logger konfigurieren
     logger = logging.getLogger(name)
     logger.setLevel(level)
     
-    # Bestehende Handler entfernen, um Duplikate zu vermeiden
-    for handler in logger.handlers[:]:
-        logger.removeHandler(handler)
-    
-    # Datei-Handler
-    file_handler = RotatingFileHandler(f"{LOG_DIR}/{filename}", maxBytes=5*1024*1024, backupCount=3)
-    file_handler.setFormatter(file_format)
-    logger.addHandler(file_handler)
-    
-    # Konsolen-Handler (nur einmal hinzufügen)
-    if console_output:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(console_format)
+    # Handler nur hinzufügen, wenn sie noch nicht existieren
+    if not logger.handlers:
+        logger.addHandler(file_handler)
         logger.addHandler(console_handler)
     
     return logger
 
-# Debug-Level für mehr Details in der Konsole
-logging_level = logging.DEBUG
-
-# Einzelne Log-Dateien mit erweiterten Details
-bot_logger = setup_logger("bot", "bot.log", level=logging_level)
-error_logger = setup_logger("errors", "errors.log", level=logging_level)
-conversion_logger = setup_logger("conversions", "conversions.log", level=logging_level)
-
-# Detaillierte Aktivitätslogger für verschiedene Bereiche
-command_logger = setup_logger("commands", "commands.log", level=logging_level)
-queue_logger = setup_logger("queue", "queue.log", level=logging_level)
+# Einzelne Log-Dateien
+bot_logger = setup_logger("bot", "bot.log")
+error_logger = setup_logger("errors", "errors.log")
+conversion_logger = setup_logger("conversions", "conversions.log")
 
 # Fehler-Logging mit automatischem Cleanup
-def cleanup_old_logs():
+def cleanup_old_logs(max_age_days=7, max_size_mb=10):
+    """
+    Bereinigt alte oder zu große Log-Dateien.
+    
+    Args:
+        max_age_days (int): Maximales Alter der Logs in Tagen
+        max_size_mb (int): Maximale Größe der Logs in MB
+    """
+    now = datetime.datetime.now()
+    max_size_bytes = max_size_mb * 1024 * 1024
+    
     for file in os.listdir(LOG_DIR):
         file_path = os.path.join(LOG_DIR, file)
         if os.path.isfile(file_path) and file.endswith(".log"):
-            if os.path.getsize(file_path) > 10 * 1024 * 1024:  # 10 MB Limit
-                os.remove(file_path)
-                bot_logger.info(f"Log-Datei {file} wurde automatisch bereinigt")
+            # Größenprüfung
+            if os.path.getsize(file_path) > max_size_bytes:
+                bot_logger.info(f"🧹 Zu große Log-Datei wird gelöscht: {file}")
+                try:
+                    os.remove(file_path)
+                    continue
+                except OSError as e:
+                    bot_logger.error(f"❌ Fehler beim Löschen der Datei {file}: {e}")
+            
+            # Altersprüfung
+            file_time = datetime.datetime.fromtimestamp(os.path.getmtime(file_path))
+            file_age = (now - file_time).days
+            
+            if file_age > max_age_days:
+                bot_logger.info(f"🧹 Alte Log-Datei wird gelöscht: {file} (Alter: {file_age} Tage)")
+                try:
+                    os.remove(file_path)
+                except OSError as e:
+                    bot_logger.error(f"❌ Fehler beim Löschen der Datei {file}: {e}")
 
 # Cleanup starten
 cleanup_old_logs()
 
-# Startup-Nachricht mit mehr Details
-bot_logger.info(f"===== ImageX-Bot gestartet am {datetime.now().strftime('%d.%m.%Y %H:%M:%S')} =====")
-bot_logger.debug(f"Log-Level: {logging_level}")
-bot_logger.debug(f"Pfad: {os.getcwd()}")
-bot_logger.debug(f"Python Version: {sys.version}")
-
 # Globaler Logger, um ihn überall zu verwenden
 logger = bot_logger
 
-def log_command(command_name, user, guild=None, channel=None, status="executed"):
-    """Hilfsfunktion zum Loggen von Befehlsnutzung"""
-    guild_name = guild.name if guild else "DM"
-    channel_name = channel.name if channel else "DM"
-    command_logger.info(f"Command '{command_name}' {status} by {user} in {guild_name}/{channel_name}")
-
-def log_conversion(user, source_file, target_format, success=True):
-    """Hilfsfunktion zum Loggen von Konvertierungen"""
-    status = "erfolgreich" if success else "fehlgeschlagen"
-    conversion_logger.info(f"Konvertierung {status}: {source_file} -> {target_format} für {user}")
+# Initialisierungsnachricht
+logger.info("🔧 Logger erfolgreich initialisiert")

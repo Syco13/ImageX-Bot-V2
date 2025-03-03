@@ -1,137 +1,164 @@
 import asyncio
 import discord
+import time
+from typing import Tuple, List, Any
 import os
-from datetime import datetime
-import logging
 
 def get_logger():
     from bot.logger import logger
     return logger
 
-import asyncio
-import discord
-import time
-import logging
-from datetime import datetime
-
 class ImageQueue:
     def __init__(self):
         self.queue = asyncio.Queue()
         self.processing = False
-        self.logger = logging.getLogger("queue")
-        self.stats = {
-            "processed": 0,
-            "successful": 0,
-            "failed": 0,
-            "start_time": None
+        self.max_concurrent_tasks = 4
+        self.processing_times = []  # Track processing times for performance monitoring
+        self.processed_count = 0
+        self.failed_count = 0
+        self.last_error = None
+        self.max_retries = 2  # Number of retries for failed conversions
+        
+    async def add(self, interaction, image, target_format="png"):
+        """Add an image to the processing queue"""
+        task_id = f"task_{int(time.time())}_{self.queue.qsize()}"
+        await self.queue.put((interaction, image, target_format, task_id, 0))  # 0 = retry count
+        
+        # Start processing if not already running
+        if not self.processing:
+            self.processing = True
+            asyncio.create_task(self.process_queue())
+            get_logger().info(f"🚀 Queue processor started with {self.queue.qsize()} items")
+        
+        return task_id
+    
+    async def get_status(self):
+        """Return current status information about the queue"""
+        avg_time = sum(self.processing_times[-10:]) / max(len(self.processing_times[-10:]), 1) if self.processing_times else 0
+        
+        return {
+            "queue_size": self.queue.qsize(),
+            "processing": self.processing,
+            "processed_count": self.processed_count,
+            "failed_count": self.failed_count,
+            "average_processing_time": round(avg_time, 2),
+            "last_error": str(self.last_error) if self.last_error else None
         }
 
-    async def add(self, ctx, image, target_format="png", remove_bg=False, resize=None):
-        queue_size = self.queue.qsize()
-        self.logger.info(f"Bild zur Queue hinzugefügt: {image.filename} ({target_format}) von {ctx.author if hasattr(ctx, 'author') else 'Unbekannt'}")
-        self.logger.debug(f"Queue-Größe vor Hinzufügen: {queue_size}")
-
-        await self.queue.put((ctx, image, target_format, remove_bg, resize))
-
-        if not self.processing:
-            self.logger.info("Queue-Verarbeitung wird gestartet")
-            self.processing = True
-            self.stats["start_time"] = datetime.now()
-            asyncio.create_task(self.process_queue())
-        else:
-            self.logger.debug(f"Queue-Verarbeitung läuft bereits, Position in der Warteschlange: {queue_size + 1}")
-
     async def process_queue(self):
-        self.logger.info(f"Queue-Verarbeitung gestartet, {self.queue.qsize()} Bilder in der Warteschlange")
-
-        while not self.queue.empty():
-            start_batch = time.time()
-            batch_size = min(4, self.queue.qsize())
-            self.logger.info(f"Verarbeite Batch mit {batch_size} Bildern")
-
-            tasks = []
-            for i in range(batch_size):
-                task = await self.queue.get()
-                self.logger.debug(f"Task {i+1} aus Queue entnommen: {task[1].filename}")
-                tasks.append(task)
-
-            # Now tasks contains tuples of (ctx, image, target_format, remove_bg, resize)
-            self.logger.debug(f"Starte parallele Konvertierung von {len(tasks)} Bildern")
-            results = await asyncio.gather(
-                *[self.handle_conversion(ctx, image, target_format, remove_bg, resize) 
-                  for ctx, image, target_format, remove_bg, resize in tasks],
-                return_exceptions=True
-            )
-
-            for i, result in enumerate(results):
-                if isinstance(result, Exception):
-                    self.logger.error(f"Unbehandelte Exception in Task {i+1}: {result}")
-                    self.stats["failed"] += 1
-                else:
-                    self.queue.task_done()
-                    self.stats["processed"] += 1
-                    if result:
-                        self.stats["successful"] += 1
-                    else:
-                        self.stats["failed"] += 1
-
-            batch_time = time.time() - start_batch
-            self.logger.info(f"Batch-Verarbeitung abgeschlossen in {batch_time:.2f} Sekunden")
-            self.logger.info(f"Queue-Statistik: {self.stats['processed']} verarbeitet, "
-                           f"{self.stats['successful']} erfolgreich, {self.stats['failed']} fehlgeschlagen")
-
-        total_time = (datetime.now() - self.stats["start_time"]).total_seconds() if self.stats["start_time"] else 0
-        self.logger.info(f"Queue-Verarbeitung beendet nach {total_time:.2f} Sekunden")
-        self.processing = False
-
-    async def handle_conversion(self, ctx, image, target_format, remove_bg=False, resize=None):
-        from bot.converter import convert_image
-        from bot.logger import log_conversion
-
-        start_time = time.time()
-        self.logger.debug(f"Verarbeitung gestartet: {image.filename} zu {target_format}, remove_bg={remove_bg}, resize={resize}")
-        user = ctx.author if hasattr(ctx, 'author') else 'Unbekannt'
-
+        """Process all items in the queue"""
         try:
-            operations = []
-            if remove_bg:
-                operations.append("Hintergrundentfernung")
-            if resize:
-                operations.append(f"Größenänderung auf {resize[0]}x{resize[1]}")
-            operations.append(f"Konvertierung zu {target_format.upper()}")
+            while not self.queue.empty():
+                # Process up to max_concurrent_tasks images simultaneously
+                batch_size = min(self.max_concurrent_tasks, self.queue.qsize())
+                tasks = []
+                task_data = []
+                
+                for _ in range(batch_size):
+                    data = await self.queue.get()
+                    task_data.append(data)
+                    tasks.append(self.handle_conversion(*data))
+                
+                # Process batch of tasks concurrently
+                start_time = time.time()
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+                batch_time = time.time() - start_time
+                
+                # Record processing time
+                if batch_time > 0:
+                    self.processing_times.append(batch_time / batch_size)
+                    # Keep only the last 100 processing times
+                    if len(self.processing_times) > 100:
+                        self.processing_times = self.processing_times[-100:]
+                
+                # Handle results
+                for i, result in enumerate(results):
+                    interaction, image, target_format, task_id, retry_count = task_data[i]
+                    
+                    if isinstance(result, Exception):
+                        # Handle failed conversion
+                        self.last_error = result
+                        get_logger().error(f"❌ Task {task_id} failed: {result}")
+                        
+                        # Retry if under max retries
+                        if retry_count < self.max_retries:
+                            get_logger().info(f"🔄 Retrying task {task_id} (attempt {retry_count+1})")
+                            await self.queue.put((interaction, image, target_format, task_id, retry_count + 1))
+                        else:
+                            self.failed_count += 1
+                            try:
+                                await interaction.followup.send(f"❌ Konvertierung von `{image.filename}` nach `{target_format}` fehlgeschlagen nach {self.max_retries+1} Versuchen.")
+                            except Exception as e:
+                                get_logger().error(f"📤 Konnte Fehlermeldung nicht senden: {e}")
+                    else:
+                        # Successful conversion
+                        self.processed_count += 1
+                
+                    # Mark task as done
+                    self.queue.task_done()
+                
+                # Prevent CPU overload with very small delay
+                await asyncio.sleep(0.1)
+                
+            # Queue is empty, update processing status
+            self.processing = False
+            get_logger().info(f"✅ Queue processor finished. Processed: {self.processed_count}, Failed: {self.failed_count}")
             
-            operation_text = ", ".join(operations)
+        except Exception as e:
+            # Catch any unexpected errors in queue processing
+            self.processing = False
+            self.last_error = e
+            get_logger().error(f"💥 Unexpected error in queue processor: {e}")
             
-            self.logger.info(f"Verarbeite: `{image.filename}` → {operation_text}")
-            await ctx.send(f"⏳ `{image.filename}` wird bearbeitet: {operation_text}...")
+            # Try to restart queue processing
+            if not self.queue.empty():
+                self.processing = True
+                asyncio.create_task(self.process_queue())
 
-            conversion_start = time.time()
-            image_bytes = await convert_image(image.url, target_format, remove_bg, resize)
-            conversion_time = time.time() - conversion_start
-
+    async def handle_conversion(self, interaction, image, target_format, task_id, retry_count):
+        """Process a single image conversion"""
+        from bot.converter import convert_image
+        get_logger().info(f"🔄 Processing task {task_id}: Converting {image.filename} to {target_format}")
+        
+        try:
+            # Inform user about processing (first attempt only)
+            if retry_count == 0:
+                try:
+                    await interaction.followup.send(f"⏳ `{image.filename}` wird nach `{target_format.upper()}` konvertiert...")
+                except Exception as e:
+                    get_logger().error(f"📤 Fehler beim Senden der Statusnachricht: {e}")
+            
+            # Check if file is too large
+            if image.size > 8 * 1024 * 1024:  # 8 MB limit
+                await interaction.followup.send(f"❌ Die Datei `{image.filename}` ist zu groß (max. 8 MB).")
+                return
+                
+            # Perform conversion
+            start_time = time.time()
+            image_bytes = await convert_image(image.url, target_format)
+            conversion_time = time.time() - start_time
+            
             if image_bytes:
-                file_size = len(image_bytes.getvalue())
-                self.logger.info(f"✅ Verarbeitung erfolgreich: {image.filename} ({file_size} Bytes in {conversion_time:.2f}s)")
-
-                filename, file_extension = os.path.splitext(image.filename)
-                await ctx.send(file=discord.File(image_bytes, filename=f"{filename}.{target_format}"))
-                log_conversion(user, image.filename, target_format, success=True)
+                # Build filename that preserves original name but changes extension
+                original_name = os.path.splitext(image.filename)[0]
+                new_filename = f"{original_name}.{target_format}"
+                
+                # Send converted file
+                await interaction.followup.send(
+                    f"✅ Konvertierung erfolgreich ({conversion_time:.1f}s)",
+                    file=discord.File(image_bytes, filename=new_filename)
+                )
+                get_logger().info(f"✅ Task {task_id} erfolgreich: `{image.filename}` → `{new_filename}` ({conversion_time:.1f}s)")
                 return True
             else:
-                self.logger.error(f"❌ Konvertierung fehlgeschlagen: {image.filename} → {target_format.upper()} (nach {conversion_time:.2f}s)")
-                await ctx.send("❌ Fehler bei der Konvertierung.")
-                log_conversion(user, image.filename, target_format, success=False)
-                return False
-        except discord.HTTPException as e:
-            self.logger.error(f"❌ Discord HTTP-Fehler: {e.status} - {e.code}: {e.text}")
-            await ctx.send(f"❌ Discord-Fehler: Datei konnte nicht gesendet werden (möglicherweise zu groß).")
-            return False
+                raise Exception("Konvertierung fehlgeschlagen - keine Ausgabedaten")
+                
         except Exception as e:
-            import traceback
-            error_trace = traceback.format_exc()
-            self.logger.error(f"❌ Fehler in der Queue: {type(e).__name__}: {e}")
-            self.logger.error(f"Traceback: {error_trace}")
-
-            # Benutzerfreundliche Fehlermeldung
-            await ctx.send(f"❌ Fehler: {e}")
-            return False
+            get_logger().error(f"❌ Fehler bei Task {task_id} (Versuch {retry_count+1}): {e}")
+            # Only notify user on final retry
+            if retry_count >= self.max_retries:
+                try:
+                    await interaction.followup.send(f"❌ Fehler bei der Konvertierung von `{image.filename}`: {e}")
+                except Exception as send_error:
+                    get_logger().error(f"📤 Konnte Fehlermeldung nicht senden: {send_error}")
+            raise e  # Re-raise so retry logic can handle it

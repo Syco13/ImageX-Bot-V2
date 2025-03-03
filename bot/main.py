@@ -5,418 +5,657 @@ import asyncio
 import time
 import os
 import sys
+import traceback
+from typing import List, Optional
+import io
+import platform
+import datetime
+import random
+import psutil  # You might need to add this to your dependencies
 
 from bot.converter import convert_image
 from bot.config import ALLOWED_FORMATS, MAX_FILES_PER_REQUEST
 from bot.task_queue import ImageQueue
+from bot.logger import bot_logger as logger
 
-from bot.logger import bot_logger as logger  # Verhindert Import-Zirkel
+# Optional keep_alive import (will be added later)
+try:
+    from keep_alive import keep_alive
+except ImportError:
+    def keep_alive():
+        logger.warning("⚠️ keep_alive module not found, skipping...")
 
+# Create the conversion queue
 queue = ImageQueue()
 
-# Token sicher aus Environment-Variable lesen
+# Safely read token from environment variable
 TOKEN = os.getenv("DISCORD_TOKEN")
+if not TOKEN:
+    logger.error("❌ DISCORD_TOKEN not found! Please set the environment variable.")
+    sys.exit(1)
 
+# Discord Intents and Bot initialization
 intents = discord.Intents.default()
-intents.message_content = True
-bot = commands.Bot(command_prefix="/", intents=intents)
+intents.message_content = True  # Enables reading message content
 
-last_request_time = 0
+bot = commands.Bot(command_prefix="/", intents=intents, help_command=None)
 
+# Rate limiting for users
+user_cooldowns = {}
+COOLDOWN_TIME = 5  # Seconds between requests
+
+# Global statistics
+start_time = time.time()
+conversion_count = 0
+error_count = 0
+last_errors = []
+
+# Available commands and their descriptions for the help page
+commands_info = {
+    "convert": "Convert images to another format",
+    "formats": "Show all supported image formats",
+    "status": "Show current queue and bot status",
+    "logs": "Show recent logs (admin only)",
+    "restart": "Restart the bot (admin only)",
+    "help": "Show this help page",
+    "ping": "Show bot latency",
+    "stats": "Show bot usage statistics",
+    "info": "Show information about the bot"
+}
+
+# Helper function for rate limiting
+def check_cooldown(user_id):
+    current_time = time.time()
+    if user_id in user_cooldowns:
+        time_diff = current_time - user_cooldowns[user_id]
+        if time_diff < COOLDOWN_TIME:
+            return False, COOLDOWN_TIME - time_diff
+    user_cooldowns[user_id] = current_time
+    return True, 0
+
+# Helper function for permission checking
+def has_permission(interaction, permission_name="attach_files"):
+    """Check if a user has the specified permission"""
+    if not interaction.guild:
+        return True  # Always allow in DMs
+        
+    permission = getattr(interaction.user.guild_permissions, permission_name, None)
+    if permission is None:
+        return False
+    return permission
+
+# Bot Events
 @bot.event
 async def on_ready():
-    logger.info(f"🚀 {bot.user} ist online! Bot-ID: {bot.user.id}")
-    logger.debug(f"In {len(bot.guilds)} Servern aktiv")
+    """Event when the bot starts"""
+    logger.info(f"🚀 {bot.user} is online!")
     
-    # Erweiterte Bot-Informationen
-    for guild in bot.guilds:
-        logger.debug(f"Server: {guild.name} (ID: {guild.id}) - {len(guild.members)} Mitglieder")
+    # Register slash commands
+    try:
+        synced = await bot.tree.sync()
+        logger.info(f"✅ {len(synced)} slash commands synchronized")
+    except Exception as e:
+        logger.error(f"❌ Error synchronizing slash commands: {e}")
     
-    await bot.tree.sync()
-    logger.info("✅ Slash-Commands synchronisiert")
+    # Set status
+    await bot.change_presence(
+        activity=discord.Activity(
+            type=discord.ActivityType.watching, 
+            name="converting images | /help"
+        )
+    )
     
-    await bot.change_presence(activity=discord.Game(name="ImageX 🔥 | /convert"))
-    logger.info("✅ Status gesetzt: 'ImageX 🔥 | /convert'")
+    # Start keep-alive for Replit
+    keep_alive()
     
-    logger.info("====================================")
-    logger.info("🤖 Bot ist vollständig gestartet und bereit!")
-    logger.info("====================================")
-    
-@bot.event
-async def on_guild_join(guild):
-    """Log wenn der Bot einem neuen Server beitritt"""
-    logger.info(f"🔵 Bot ist neuem Server beigetreten: {guild.name} (ID: {guild.id}) - {len(guild.members)} Mitglieder")
+    logger.info(f"ℹ️ Bot running on Discord.py v{discord.__version__}")
+    logger.info(f"ℹ️ Python version: {platform.python_version()}")
+    logger.info(f"ℹ️ System: {platform.system()} {platform.release()}")
 
-@bot.event 
+@bot.event
 async def on_command_error(ctx, error):
-    """Log für Command-Fehler"""
-    from bot.logger import error_logger
-    error_logger.error(f"Command-Fehler: {error} in {ctx.command if ctx.command else 'Unbekannter Befehl'}")
-    error_logger.error(f"von {ctx.author} in {ctx.guild}/{ctx.channel}")
-    
-@bot.event
-async def on_app_command_error(interaction, error):
-    """Log für App-Command-Fehler (Slash-Commands)"""
-    from bot.logger import error_logger
-    command_name = interaction.command.name if interaction.command else "Unbekannt"
-    error_logger.error(f"App-Command-Fehler: {error} in /{command_name}")
-    error_logger.error(f"von {interaction.user} in {interaction.guild}/{interaction.channel}")
-    
-    # Versuche, eine schöne Fehlermeldung zu senden, falls möglich
-    try:
-        if interaction.response.is_done():
-            await interaction.followup.send(f"❌ Fehler: {error}", ephemeral=True)
-        else:
-            await interaction.response.send_message(f"❌ Fehler: {error}", ephemeral=True)
-    except:
-        pass
-
-@bot.tree.command(name="convert", description="Konvertiere Bilder in ein anderes Format")
-@app_commands.describe(target_format="Das Zielformat (z.B. png, jpg, webp)")
-async def convert(interaction: discord.Interaction, target_format: str):
-    global last_request_time
-    current_time = time.time()
-    
-    from bot.logger import log_command, command_logger as cmd_logger
-    
-    cmd_logger.info(f"Convert-Command ausgeführt von {interaction.user} in {interaction.guild.name if interaction.guild else 'DM'}")
-    cmd_logger.debug(f"Parameter: target_format={target_format}")
-
-    # Berechtigung prüfen
-    if not interaction.user.guild_permissions.attach_files:
-        cmd_logger.warning(f"❌ Berechtigungsfehler: {interaction.user} hat keine Berechtigung zum Hochladen von Dateien")
-        await interaction.response.send_message("❌ **Du darfst keine Dateien hochladen!**", ephemeral=True)
+    """Global error handler for commands"""
+    if isinstance(error, commands.CommandNotFound):
         return
-
-    # Rate-Limit Check
-    if current_time - last_request_time < 5:
-        wait_time = 5 - (current_time - last_request_time)
-        cmd_logger.info(f"⏳ Rate-Limit für {interaction.user}: Muss noch {wait_time:.1f} Sekunden warten")
-        await interaction.response.send_message(f"⏳ Bitte warte noch `{wait_time:.1f}` Sekunden.", ephemeral=True)
-        return
-
-    # Format prüfen
-    if target_format.lower() not in ALLOWED_FORMATS:
-        cmd_logger.warning(f"❌ Ungültiges Format: {target_format} von {interaction.user}")
-        await interaction.response.send_message(f"❌ `{target_format}` ist kein unterstütztes Zielformat.", ephemeral=True)
-        return
-        
-    # Wir müssen dem Benutzer erst antworten und dann nach Anhängen fragen
-    cmd_logger.info(f"✅ {interaction.user} kann Bilder senden für {target_format}-Konvertierung")
-    await interaction.response.send_message("⚠️ **Bitte sende jetzt die Bilder, die du konvertieren möchtest!**", ephemeral=True)
     
-    # Funktion zum Sammeln der Anhänge
-    def check(message):
-        return message.author == interaction.user and message.attachments
-
-    last_request_time = current_time
+    error_msg = str(error)
+    logger.error(f"❌ Command error: {error_msg}")
     
-    try:
-        # Warte auf die Nachricht mit Anhängen (Timeout nach 60 Sekunden)
-        cmd_logger.debug(f"Warte auf Bilder von {interaction.user}...")
-        message = await bot.wait_for('message', check=check, timeout=60.0)
-        
-        # Detaillierte Dateiinformationen loggen
-        for attachment in message.attachments:
-            cmd_logger.debug(f"Empfangen: {attachment.filename} ({attachment.size} Bytes, {attachment.content_type})")
-        
-        images = message.attachments[:MAX_FILES_PER_REQUEST]
-        if len(message.attachments) > MAX_FILES_PER_REQUEST:
-            cmd_logger.warning(f"⚠️ {interaction.user} hat zu viele Dateien gesendet. Nur {MAX_FILES_PER_REQUEST} werden verarbeitet.")
-            await message.channel.send(f"⚠️ Es werden nur die ersten {MAX_FILES_PER_REQUEST} Bilder verarbeitet.")
-            
-        cmd_logger.info(f"Bilder von {interaction.user.name} erhalten: {len(images)}/{len(message.attachments)} Dateien")
-
-        # Bilder in Warteschlange hinzufügen
-        for i, image in enumerate(images):
-            cmd_logger.debug(f"Füge Bild {i+1}/{len(images)} zur Queue hinzu: {image.filename}")
-            await queue.add(message.channel, image, target_format)
-
-        cmd_logger.info(f"✅ Alle {len(images)} Bilder zur Verarbeitung hinzugefügt für {interaction.user.name}")
-        await message.channel.send(f"⏳ **Deine {len(images)} Bilder werden in `{target_format.upper()}` konvertiert...**")
-        
-        # Log-Command-Nutzung
-        log_command("convert", interaction.user.name, interaction.guild, interaction.channel, 
-                   status=f"started conversion of {len(images)} images to {target_format}")
-        
-    except asyncio.TimeoutError:
-        # Wenn der Benutzer keine Bilder innerhalb der Zeitbeschränkung sendet
-        cmd_logger.warning(f"⏳ Zeitüberschreitung für {interaction.user.name} - keine Bilder erhalten nach 60 Sekunden")
-        follow_up = await interaction.original_response()
-        await follow_up.edit(content="❌ **Zeitüberschreitung! Keine Bilder erhalten.**")
-        
-        # Log-Command-Nutzung für fehlgeschlagene Anfrage
-        log_command("convert", interaction.user.name, interaction.guild, interaction.channel, 
-                   status="timeout - no images received")
-
-@bot.tree.command(name="remove-bg", description="Entferne den Hintergrund von Bildern")
-@app_commands.describe(target_format="Das Zielformat (z.B. png, jpg, webp)")
-async def remove_bg(interaction: discord.Interaction, target_format: str = "png"):
-    global last_request_time
-    current_time = time.time()
+    # Save error
+    global error_count
+    error_count += 1
+    last_errors.append((time.time(), error_msg))
     
-    from bot.logger import log_command, command_logger as cmd_logger
+    # Keep only the last 10 errors
+    if len(last_errors) > 10:
+        last_errors.pop(0)
     
-    cmd_logger.info(f"Remove-bg-Command ausgeführt von {interaction.user} in {interaction.guild.name if interaction.guild else 'DM'}")
-    cmd_logger.debug(f"Parameter: target_format={target_format}")
+    # Report error to the user
+    await ctx.send(f"❌ **Error:** {error_msg}", ephemeral=True)
 
-    # Berechtigung prüfen
-    if not interaction.user.guild_permissions.attach_files:
-        cmd_logger.warning(f"❌ Berechtigungsfehler: {interaction.user} hat keine Berechtigung zum Hochladen von Dateien")
-        await interaction.response.send_message("❌ **Du darfst keine Dateien hochladen!**", ephemeral=True)
-        return
-
-    # Rate-Limit Check
-    if current_time - last_request_time < 5:
-        wait_time = 5 - (current_time - last_request_time)
-        cmd_logger.info(f"⏳ Rate-Limit für {interaction.user}: Muss noch {wait_time:.1f} Sekunden warten")
-        await interaction.response.send_message(f"⏳ Bitte warte noch `{wait_time:.1f}` Sekunden.", ephemeral=True)
-        return
-
-    # Format prüfen
-    if target_format.lower() not in ALLOWED_FORMATS:
-        cmd_logger.warning(f"❌ Ungültiges Format: {target_format} von {interaction.user}")
-        await interaction.response.send_message(f"❌ `{target_format}` ist kein unterstütztes Zielformat.", ephemeral=True)
-        return
-        
-    # Wir müssen dem Benutzer erst antworten und dann nach Anhängen fragen
-    cmd_logger.info(f"✅ {interaction.user} kann Bilder senden für Hintergrundentfernung und {target_format}-Konvertierung")
-    await interaction.response.send_message("⚠️ **Bitte sende jetzt die Bilder, von denen du den Hintergrund entfernen möchtest!**", ephemeral=True)
+@bot.tree.error
+async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
+    """Error handler for slash commands"""
+    error_msg = str(error)
     
-    # Funktion zum Sammeln der Anhänge
-    def check(message):
-        return message.author == interaction.user and message.attachments
-
-    last_request_time = current_time
+    # Unwrap CommandInvokeError
+    if isinstance(error, app_commands.errors.CommandInvokeError):
+        error = error.original
+        error_msg = str(error)
     
-    try:
-        # Warte auf die Nachricht mit Anhängen (Timeout nach 60 Sekunden)
-        cmd_logger.debug(f"Warte auf Bilder von {interaction.user}...")
-        message = await bot.wait_for('message', check=check, timeout=60.0)
-        
-        # Detaillierte Dateiinformationen loggen
-        for attachment in message.attachments:
-            cmd_logger.debug(f"Empfangen: {attachment.filename} ({attachment.size} Bytes, {attachment.content_type})")
-        
-        images = message.attachments[:MAX_FILES_PER_REQUEST]
-        if len(message.attachments) > MAX_FILES_PER_REQUEST:
-            cmd_logger.warning(f"⚠️ {interaction.user} hat zu viele Dateien gesendet. Nur {MAX_FILES_PER_REQUEST} werden verarbeitet.")
-            await message.channel.send(f"⚠️ Es werden nur die ersten {MAX_FILES_PER_REQUEST} Bilder verarbeitet.")
-            
-        cmd_logger.info(f"Bilder von {interaction.user.name} erhalten: {len(images)}/{len(message.attachments)} Dateien")
+    # Log error
+    logger.error(f"❌ Slash command error: {error_msg}")
+    logger.error(f"Details: {traceback.format_exc()}")
+    
+    # Save error
+    global error_count
+    error_count += 1
+    last_errors.append((time.time(), error_msg))
+    
+    # Keep only the last 10 errors
+    if len(last_errors) > 10:
+        last_errors.pop(0)
+    
+    # Send to user
+    if not interaction.response.is_done():
+        await interaction.response.send_message(
+            f"❌ **Error:** {error_msg}", 
+            ephemeral=True
+        )
+    else:
+        await interaction.followup.send(
+            f"❌ **Error:** {error_msg}", 
+            ephemeral=True
+        )
 
-        # Bilder in Warteschlange hinzufügen
-        for i, image in enumerate(images):
-            cmd_logger.debug(f"Füge Bild {i+1}/{len(images)} zur Queue hinzu: {image.filename}")
-            await queue.add(message.channel, image, target_format, remove_bg=True)
-
-        cmd_logger.info(f"✅ Alle {len(images)} Bilder zur Verarbeitung hinzugefügt für {interaction.user.name}")
-        await message.channel.send(f"⏳ **Bei deinen {len(images)} Bildern wird der Hintergrund entfernt und in `{target_format.upper()}` konvertiert...**")
-        
-        # Log-Command-Nutzung
-        log_command("remove-bg", interaction.user.name, interaction.guild, interaction.channel, 
-                   status=f"started background removal for {len(images)} images")
-        
-    except asyncio.TimeoutError:
-        # Wenn der Benutzer keine Bilder innerhalb der Zeitbeschränkung sendet
-        cmd_logger.warning(f"⏳ Zeitüberschreitung für {interaction.user.name} - keine Bilder erhalten nach 60 Sekunden")
-        follow_up = await interaction.original_response()
-        await follow_up.edit(content="❌ **Zeitüberschreitung! Keine Bilder erhalten.**")
-        
-        # Log-Command-Nutzung für fehlgeschlagene Anfrage
-        log_command("remove-bg", interaction.user.name, interaction.guild, interaction.channel, 
-                   status="timeout - no images received")
-
-@bot.tree.command(name="resize", description="Ändere die Größe von Bildern")
+# Commands for image conversion
+@bot.tree.command(name="convert", description="Convert images to another format")
 @app_commands.describe(
-    target_format="Das Zielformat (z.B. png, jpg, webp)",
-    width="Neue Breite des Bildes in Pixeln",
-    height="Neue Höhe des Bildes in Pixeln",
-    remove_bg="Soll der Hintergrund entfernt werden?"
+    target_format="The target format for conversion",
+    file1="First file to convert",
+    file2="Second file to convert (optional)",
+    file3="Third file to convert (optional)",
+    file4="Fourth file to convert (optional)"
 )
-async def resize(interaction: discord.Interaction, width: int, height: int, target_format: str = "png", remove_bg: bool = False):
-    global last_request_time
-    current_time = time.time()
-    
-    from bot.logger import log_command, command_logger as cmd_logger
-    
-    cmd_logger.info(f"Resize-Command ausgeführt von {interaction.user} in {interaction.guild.name if interaction.guild else 'DM'}")
-    cmd_logger.debug(f"Parameter: width={width}, height={height}, target_format={target_format}, remove_bg={remove_bg}")
-
-    # Berechtigung prüfen
-    if not interaction.user.guild_permissions.attach_files:
-        cmd_logger.warning(f"❌ Berechtigungsfehler: {interaction.user} hat keine Berechtigung zum Hochladen von Dateien")
-        await interaction.response.send_message("❌ **Du darfst keine Dateien hochladen!**", ephemeral=True)
+async def convert(
+    interaction: discord.Interaction, 
+    target_format: str,
+    file1: discord.Attachment,
+    file2: Optional[discord.Attachment] = None,
+    file3: Optional[discord.Attachment] = None,
+    file4: Optional[discord.Attachment] = None
+):
+    """Convert images to another format"""
+    # Check rate limiting
+    can_proceed, wait_time = check_cooldown(interaction.user.id)
+    if not can_proceed:
+        await interaction.response.send_message(
+            f"⏳ Please wait `{wait_time:.1f}` more seconds.", 
+            ephemeral=True
+        )
         return
 
-    # Rate-Limit Check
-    if current_time - last_request_time < 5:
-        wait_time = 5 - (current_time - last_request_time)
-        cmd_logger.info(f"⏳ Rate-Limit für {interaction.user}: Muss noch {wait_time:.1f} Sekunden warten")
-        await interaction.response.send_message(f"⏳ Bitte warte noch `{wait_time:.1f}` Sekunden.", ephemeral=True)
+    # Check permissions
+    if not has_permission(interaction, "attach_files"):
+        await interaction.response.send_message(
+            "❌ **You don't have permission to upload files!**", 
+            ephemeral=True
+        )
         return
 
-    # Format prüfen
-    if target_format.lower() not in ALLOWED_FORMATS:
-        cmd_logger.warning(f"❌ Ungültiges Format: {target_format} von {interaction.user}")
-        await interaction.response.send_message(f"❌ `{target_format}` ist kein unterstütztes Zielformat.", ephemeral=True)
+    # Check format
+    target_format = target_format.lower().strip(".")
+    if target_format not in ALLOWED_FORMATS:
+        formats_list = ", ".join([f"`{f}`" for f in ALLOWED_FORMATS[:10]]) + f" and {len(ALLOWED_FORMATS)-10} more"
+        await interaction.response.send_message(
+            f"❌ `{target_format}` is not a supported target format.\n"
+            f"Supported formats: {formats_list}\n"
+            f"Use `/formats` for a complete list.", 
+            ephemeral=True
+        )
         return
-        
-    # Größe prüfen
-    if width <= 0 or height <= 0:
-        cmd_logger.warning(f"❌ Ungültige Größe: {width}x{height} von {interaction.user}")
-        await interaction.response.send_message("❌ **Breite und Höhe müssen größer als 0 sein!**", ephemeral=True)
-        return
-        
-    if width > 5000 or height > 5000:
-        cmd_logger.warning(f"❌ Zu große Bildabmessungen: {width}x{height} von {interaction.user}")
-        await interaction.response.send_message("❌ **Maximale Bildgröße ist 5000x5000 Pixel!**", ephemeral=True)
-        return
-    
-    # Wir müssen dem Benutzer erst antworten und dann nach Anhängen fragen
-    cmd_logger.info(f"✅ {interaction.user} kann Bilder senden für Größenänderung auf {width}x{height}")
-    await interaction.response.send_message("⚠️ **Bitte sende jetzt die Bilder, deren Größe du ändern möchtest!**", ephemeral=True)
-    
-    # Funktion zum Sammeln der Anhänge
-    def check(message):
-        return message.author == interaction.user and message.attachments
 
-    last_request_time = current_time
+    # Collect files
+    files = [f for f in [file1, file2, file3, file4] if f is not None]
     
-    try:
-        # Warte auf die Nachricht mit Anhängen (Timeout nach 60 Sekunden)
-        cmd_logger.debug(f"Warte auf Bilder von {interaction.user}...")
-        message = await bot.wait_for('message', check=check, timeout=60.0)
+    # Check if there are any files
+    if not files:
+        await interaction.response.send_message(
+            "⚠️ **Please upload at least one file!**", 
+            ephemeral=True
+        )
+        return
         
-        # Detaillierte Dateiinformationen loggen
-        for attachment in message.attachments:
-            cmd_logger.debug(f"Empfangen: {attachment.filename} ({attachment.size} Bytes, {attachment.content_type})")
-        
-        images = message.attachments[:MAX_FILES_PER_REQUEST]
-        if len(message.attachments) > MAX_FILES_PER_REQUEST:
-            cmd_logger.warning(f"⚠️ {interaction.user} hat zu viele Dateien gesendet. Nur {MAX_FILES_PER_REQUEST} werden verarbeitet.")
-            await message.channel.send(f"⚠️ Es werden nur die ersten {MAX_FILES_PER_REQUEST} Bilder verarbeitet.")
+    # Check number of files
+    if len(files) > MAX_FILES_PER_REQUEST:
+        await interaction.response.send_message(
+            f"⚠️ Maximum {MAX_FILES_PER_REQUEST} files per request allowed. Additional files will be ignored.", 
+            ephemeral=True
+        )
+        files = files[:MAX_FILES_PER_REQUEST]
+
+    # Send initial response (will be updated later with followup.send)
+    await interaction.response.send_message(
+        f"⏳ **Processing {len(files)} {'file' if len(files) == 1 else 'files'} for conversion to `{target_format}`...**", 
+        ephemeral=False  # Visible to everyone so others can see the bot is working
+    )
+    
+    # Update global stats
+    global conversion_count
+    conversion_count += len(files)
+
+    # Queue conversion tasks
+    task_ids = []
+    for image in files:
+        # Check file extension
+        if not any(image.filename.lower().endswith(f".{ext}") for ext in ALLOWED_FORMATS):
+            await interaction.followup.send(
+                f"⚠️ `{image.filename}` has an unknown format and will be skipped.",
+                ephemeral=True
+            )
+            continue
             
-        cmd_logger.info(f"Bilder von {interaction.user.name} erhalten: {len(images)}/{len(message.attachments)} Dateien")
+        # Add to queue
+        task_id = await queue.add(interaction, image, target_format)
+        task_ids.append(task_id)
+    
+    logger.info(f"✅ {len(task_ids)} conversions from {interaction.user} ({interaction.user.id}) added to queue")
 
-        # Bilder in Warteschlange hinzufügen
-        for i, image in enumerate(images):
-            cmd_logger.debug(f"Füge Bild {i+1}/{len(images)} zur Queue hinzu: {image.filename}")
-            await queue.add(message.channel, image, target_format, remove_bg=remove_bg, resize=(width, height))
+# Information commands
+@bot.tree.command(name="formats", description="Show all supported image formats")
+async def formats(interaction: discord.Interaction):
+    """Show all supported image formats"""
+    # Split formats into categories
+    common_formats = ["jpg", "jpeg", "png", "gif", "bmp", "tiff", "webp"]
+    special_formats = ["ico", "svg", "dds", "heic", "jp2"]
+    pro_formats = ["psd", "ai", "eps", "pdf", "raw"]
+    camera_formats = ["nef", "cr2", "orf", "arw", "dng", "rw2", "raf", "sr2", "pef", "x3f"]
+    other_formats = [f for f in ALLOWED_FORMATS if f not in common_formats + special_formats + pro_formats + camera_formats]
+    
+    embed = discord.Embed(
+        title="📋 Supported Image Formats",
+        description="These formats can be used as source and target formats:",
+        color=discord.Color.blue()
+    )
+    
+    embed.add_field(
+        name="📸 Commonly Used",
+        value=" • " + "\n • ".join(common_formats),
+        inline=True
+    )
+    
+    embed.add_field(
+        name="🔧 Special Formats",
+        value=" • " + "\n • ".join(special_formats),
+        inline=True
+    )
+    
+    embed.add_field(
+        name="👨‍💻 Professional Formats",
+        value=" • " + "\n • ".join(pro_formats),
+        inline=True
+    )
+    
+    embed.add_field(
+        name="📷 Camera RAW",
+        value=" • " + "\n • ".join(camera_formats),
+        inline=True
+    )
+    
+    if other_formats:
+        embed.add_field(
+            name="🔍 Other Formats",
+            value=" • " + "\n • ".join(other_formats),
+            inline=True
+        )
+    
+    embed.set_footer(text="Use /convert to convert images")
+    
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
-        operations = []
-        if remove_bg:
-            operations.append("Hintergrundentfernung")
-        operations.append(f"Größenänderung auf {width}x{height}")
-        operations.append(f"Konvertierung zu {target_format.upper()}")
-        operation_text = ", ".join(operations)
-        
-        cmd_logger.info(f"✅ Alle {len(images)} Bilder zur Verarbeitung hinzugefügt für {interaction.user.name}")
-        await message.channel.send(f"⏳ **Deine {len(images)} Bilder werden bearbeitet: {operation_text}...**")
-        
-        # Log-Command-Nutzung
-        log_command("resize", interaction.user.name, interaction.guild, interaction.channel, 
-                   status=f"started resizing {len(images)} images to {width}x{height}")
-        
-    except asyncio.TimeoutError:
-        # Wenn der Benutzer keine Bilder innerhalb der Zeitbeschränkung sendet
-        cmd_logger.warning(f"⏳ Zeitüberschreitung für {interaction.user.name} - keine Bilder erhalten nach 60 Sekunden")
-        follow_up = await interaction.original_response()
-        await follow_up.edit(content="❌ **Zeitüberschreitung! Keine Bilder erhalten.**")
-        
-        # Log-Command-Nutzung für fehlgeschlagene Anfrage
-        log_command("resize", interaction.user.name, interaction.guild, interaction.channel, 
-                   status="timeout - no images received")
-
-@bot.tree.command(name="status", description="Zeigt die aktuelle Warteschlange")
+@bot.tree.command(name="status", description="Show current queue and bot status")
 async def status(interaction: discord.Interaction):
-    queue_size = queue.queue.qsize()
-    processing_status = "✅ Läuft" if queue.processing else "⏳ Wartet auf Anfragen"
-
-    embed = discord.Embed(title="📊 ImageX-Bot Status", color=discord.Color.blue())
-    embed.add_field(name="🖼️ Wartende Bilder:", value=str(queue_size), inline=True)
-    embed.add_field(name="⚙️ Verarbeitung:", value=processing_status, inline=True)
-
+    """Show current queue and bot status"""
+    # Get queue status
+    queue_status = await queue.get_status()
+    
+    # Calculate uptime
+    uptime = time.time() - start_time
+    days, remainder = divmod(uptime, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    uptime_str = f"{int(days)}d {int(hours)}h {int(minutes)}m {int(seconds)}s"
+    
+    # System resources
+    memory_usage = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024  # MB
+    
+    # Create status embed
+    embed = discord.Embed(
+        title="📊 ImageX Bot Status", 
+        color=discord.Color.blue(),
+        description=f"Bot running since: `{uptime_str}`"
+    )
+    
+    # Queue status
+    embed.add_field(
+        name="🖼️ Conversion Queue:",
+        value=f"• Waiting images: `{queue_status['queue_size']}`\n"
+              f"• Current status: `{'✅ Active' if queue_status['processing'] else '⏲️ Ready'}`\n"
+              f"• Average processing time: `{queue_status['average_processing_time']}s`",
+        inline=False
+    )
+    
+    # Performance statistics
+    embed.add_field(
+        name="📈 Statistics:",
+        value=f"• Successfully converted: `{queue_status['processed_count']}`\n"
+              f"• Failed conversions: `{queue_status['failed_count']}`\n"
+              f"• Total requests: `{conversion_count}`",
+        inline=True
+    )
+    
+    # System status
+    embed.add_field(
+        name="⚙️ System:",
+        value=f"• RAM usage: `{memory_usage:.1f} MB`\n"
+              f"• Errors: `{error_count}`\n"
+              f"• Discord API latency: `{bot.latency*1000:.1f}ms`",
+        inline=True
+    )
+    
+    # Last error, if any
+    if queue_status['last_error']:
+        embed.add_field(
+            name="⚠️ Last Error:",
+            value=f"```{queue_status['last_error'][:200]}```",
+            inline=False
+        )
+    
+    embed.set_footer(text=f"ImageX v1.0 | {len(bot.guilds)} Servers")
+    
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
-@bot.tree.command(name="logs", description="Zeigt die letzten Logs (Admin only)")
+@bot.tree.command(name="logs", description="Show recent logs (admin only)")
+@app_commands.describe(amount="Number of log lines to show")
 async def logs(interaction: discord.Interaction, amount: int = 10):
-    if not interaction.user.guild_permissions.administrator:
-        await interaction.response.send_message("❌ **Du hast keine Berechtigung, die Logs zu sehen!**", ephemeral=True)
+    """Show recent logs (admin only)"""
+    if not has_permission(interaction, "administrator"):
+        await interaction.response.send_message(
+            "❌ **You don't have permission to view logs!**", 
+            ephemeral=True
+        )
         return
 
-    log_path = "Logs/bot.log"  # Fix: Logs statt logs
+    # Validate logs
+    log_path = "Logs/bot.log"
     if not os.path.exists(log_path):
-        await interaction.response.send_message("🚫 **Es gibt noch keine Logs!**", ephemeral=True)
+        await interaction.response.send_message(
+            "🚫 **No logs exist yet!**", 
+            ephemeral=True
+        )
         return
 
-    with open(log_path, "r") as log_file:
-        log_lines = log_file.readlines()[-amount:]
+    # Read logs (with error handling)
+    try:
+        with open(log_path, "r", encoding="utf-8") as log_file:
+            log_lines = log_file.readlines()
+            log_lines = log_lines[-min(amount, len(log_lines)):]  # Only the last X lines
+    except Exception as e:
+        await interaction.response.send_message(
+            f"❌ **Error reading logs:** `{e}`", 
+            ephemeral=True
+        )
+        return
 
-    embed = discord.Embed(title="📜 Letzte Logs", color=discord.Color.dark_blue())
-    embed.description = "\n".join([f"📝 `{line.strip()}`" for line in log_lines]) or "ℹ️ Keine Logs vorhanden."
+    # Split logs into chunks (Discord has a 2000 character limit)
+    chunks = []
+    current_chunk = ""
+    
+    for line in log_lines:
+        line = line.strip()
+        if len(current_chunk) + len(line) + 6 > 1900:  # Leave space for ```log ... ```
+            chunks.append(current_chunk)
+            current_chunk = line
+        else:
+            current_chunk += "\n" + line if current_chunk else line
+    
+    if current_chunk:
+        chunks.append(current_chunk)
+    
+    # Send logs
+    await interaction.response.send_message(f"📜 **Last {len(log_lines)} logs:**", ephemeral=True)
+    
+    for i, chunk in enumerate(chunks):
+        await interaction.followup.send(f"```log\n{chunk}```", ephemeral=True)
 
-    await interaction.response.send_message(embed=embed, ephemeral=True)
-
-@bot.tree.command(name="restart", description="Startet den Bot neu (Admin only)")
+@bot.tree.command(name="restart", description="Restart the bot (admin only)")
 async def restart(interaction: discord.Interaction):
-    if not interaction.user.guild_permissions.administrator:
-        await interaction.response.send_message("❌ **Du hast keine Berechtigung, den Bot neu zu starten!**", ephemeral=True)
+    """Restart the bot (admin only)"""
+    if not has_permission(interaction, "administrator"):
+        await interaction.response.send_message(
+            "❌ **You don't have permission to restart the bot!**", 
+            ephemeral=True
+        )
         return
 
-    await interaction.response.send_message("♻️ **Neustart wird ausgeführt...**", ephemeral=True)
-    logger.info("🔄 Bot wird neu gestartet!")
+    await interaction.response.send_message("♻️ **Executing restart...**", ephemeral=True)
+    logger.info("🔄 Bot is restarting!")
 
-    # Sicherstellen, dass das aktuelle Python-Executable verwendet wird
+    # Try to complete current conversions
+    if not queue.queue.empty():
+        await interaction.followup.send(
+            f"⏳ Waiting for completion of {queue.queue.qsize()} conversions...",
+            ephemeral=True
+        )
+        # Wait maximum 30 seconds
+        try:
+            await asyncio.wait_for(queue.queue.join(), timeout=30)
+        except asyncio.TimeoutError:
+            await interaction.followup.send(
+                "⚠️ Timeout waiting for conversions. Restarting anyway...",
+                ephemeral=True
+            )
+
+    # Make sure the current Python executable is used
     os.execv(sys.executable, [sys.executable] + sys.argv)
 
-@bot.tree.command(name="help", description="Zeigt eine Liste aller Befehle")
+@bot.tree.command(name="help", description="Show a list of all commands")
 async def help_command(interaction: discord.Interaction):
-    embed = discord.Embed(title="ℹ️ **ImageX-Bot Hilfe**", color=discord.Color.green())
+    """Show a list of all commands"""
+    embed = discord.Embed(
+        title="ℹ️ **ImageX Bot Help**", 
+        color=discord.Color.green(),
+        description="This bot converts images to various formats.\n"
+                    "Here's a list of all available commands:"
+    )
     
-    # Grundfunktionen
-    embed.add_field(name="📁 Grundfunktionen", value="Grundlegende Bildbearbeitungsbefehle", inline=False)
-    embed.add_field(name="/convert [format]", value="Konvertiert hochgeladene Bilder in ein anderes Format.", inline=True)
-    embed.add_field(name="/format_info [format]", value="Zeigt Informationen über ein bestimmtes Bildformat.", inline=True)
-    embed.add_field(name="/ping", value="Zeigt die Latenz des Bots an.", inline=True)
+    # Commands for normal users
+    user_commands = ["convert", "formats", "status", "help", "ping", "info", "stats"]
+    admin_commands = ["logs", "restart"]
     
-    # Erweiterte Bildbearbeitung
-    embed.add_field(name="🖼️ Erweiterte Bildbearbeitung", value="Spezielle Bildbearbeitungsfunktionen", inline=False)
-    embed.add_field(name="/remove-bg [format]", value="Entfernt den Hintergrund von Bildern und konvertiert sie ins angegebene Format.", inline=True)
-    embed.add_field(name="/resize [width] [height] [format] [remove_bg]", value="Ändert die Bildgröße und optional das Format und entfernt den Hintergrund.", inline=True)
+    # Show commands for normal users
+    for cmd in user_commands:
+        if cmd in commands_info:
+            embed.add_field(
+                name=f"/{cmd}", 
+                value=commands_info[cmd], 
+                inline=False
+            )
     
-    # Admin-Befehle
-    embed.add_field(name="⚙️ Admin-Befehle", value="Nur für Server-Administratoren", inline=False)
-    embed.add_field(name="/status", value="Zeigt den aktuellen Status der Warteschlange.", inline=True)
-    embed.add_field(name="/logs [Anzahl]", value="Zeigt die letzten Logs (nur für Admins).", inline=True)
-    embed.add_field(name="/restart", value="Startet den Bot neu (nur für Admins).", inline=True)
+    # Show admin commands
+    embed.add_field(
+        name="🔒 Admin Commands", 
+        value="\n".join([f"• `/{cmd}` - {commands_info[cmd]}" for cmd in admin_commands]),
+        inline=False
+    )
+    
+    # Add example
+    embed.add_field(
+        name="📝 Example", 
+        value="1. Use `/convert jpg` and upload an image\n"
+              "2. The bot converts the image to JPG format\n"
+              "3. Use `/formats` to see all supported formats",
+        inline=False
+    )
+    
+    embed.set_footer(text="ImageX v1.0 | Made with ❤️")
+    
+    await interaction.response.send_message(embed=embed, ephemeral=False)
 
+@bot.tree.command(name="ping", description="Show bot latency")
+async def ping(interaction: discord.Interaction):
+    """Show bot latency"""
+    # Websocket latency
+    ws_latency = round(bot.latency * 1000)
+    
+    # Measure message latency
+    start_time = time.time()
+    await interaction.response.send_message("🏓 **Pong!** Measuring latency...", ephemeral=True)
+    
+    # Edit message to show measured latency
+    end_time = time.time()
+    message_latency = round((end_time - start_time) * 1000)
+    
+    await interaction.edit_original_response(
+        content=f"🏓 **Pong!**\n"
+               f"• API Latency: `{ws_latency}ms`\n"
+               f"• Message Latency: `{message_latency}ms`"
+    )
+
+@bot.tree.command(name="stats", description="Show bot usage statistics")
+async def stats(interaction: discord.Interaction):
+    """Show bot usage statistics"""
+    # Get queue status
+    queue_status = await queue.get_status()
+    
+    # Calculate uptime
+    uptime = time.time() - start_time
+    days, remainder = divmod(uptime, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    uptime_str = f"{int(days)}d {int(hours)}h {int(minutes)}m {int(seconds)}s"
+    
+    # Create stats embed
+    embed = discord.Embed(
+        title="📊 ImageX Bot Statistics",
+        color=discord.Color.gold(),
+        description=f"Bot has been running for `{uptime_str}`"
+    )
+    
+    # Usage statistics
+    embed.add_field(
+        name="📈 Usage Stats",
+        value=f"• Processed images: `{queue_status['processed_count']}`\n"
+              f"• Failed conversions: `{queue_status['failed_count']}`\n"
+              f"• Total requests: `{conversion_count}`\n"
+              f"• Avg. processing time: `{queue_status['average_processing_time']}s`",
+        inline=True
+    )
+    
+    # Server statistics
+    embed.add_field(
+        name="🌐 Server Stats",
+        value=f"• Servers: `{len(bot.guilds)}`\n"
+              f"• Users reached: `{sum(guild.member_count for guild in bot.guilds)}`\n"
+              f"• API Latency: `{bot.latency*1000:.1f}ms`",
+        inline=True
+    )
+    
+    # System statistics
+    cpu_percent = psutil.cpu_percent()
+    memory_usage = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024  # MB
+    
+    embed.add_field(
+        name="⚙️ System Stats",
+        value=f"• CPU usage: `{cpu_percent}%`\n"
+              f"• Memory usage: `{memory_usage:.1f} MB`\n"
+              f"• Python: `{platform.python_version()}`\n"
+              f"• Discord.py: `{discord.__version__}`",
+        inline=False
+    )
+    
+    embed.set_footer(text=f"ImageX v1.0 | {datetime.datetime.now().strftime('%Y-%m-%d')}")
+    
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
-@bot.tree.command(name="ping", description="Zeigt die Latenz des Bots an")
-async def ping(interaction: discord.Interaction):
-    latency = round(bot.latency * 1000)
-    await interaction.response.send_message(f"🏓 **Pong!** Latenz: `{latency}ms`", ephemeral=True)
-
-@bot.tree.command(name="format_info", description="Zeigt Informationen über ein bestimmtes Format")
-@app_commands.describe(format_name="Das Format, über das du Informationen erhalten möchtest")
-async def format_info(interaction: discord.Interaction, format_name: str):
-    format_name = format_name.lower()
+@bot.tree.command(name="info", description="Show information about the bot")
+async def info(interaction: discord.Interaction):
+    """Show information about the bot"""
+    embed = discord.Embed(
+        title="ℹ️ About ImageX Bot",
+        description="ImageX is a powerful image conversion bot for Discord!",
+        color=discord.Color.blue()
+    )
     
-    format_infos = {
-        "png": "**PNG** (Portable Network Graphics): Verlustfreies Format mit Transparenz-Unterstützung. Ideal für Grafiken und Screenshots.",
-        "jpg": "**JPG/JPEG** (Joint Photographic Experts Group): Komprimiertes Format für Fotos. Gut für Webseiten aber verlustbehaftet.",
-        "webp": "**WebP**: Modernes Format von Google mit guter Kompression und Qualität. Ideal für Websites.",
-        "gif": "**GIF** (Graphics Interchange Format): Unterstützt Animationen, begrenzte Farbpalette (256 Farben).",
-        "bmp": "**BMP** (Bitmap): Unkomprimiertes Format, große Dateigröße aber ohne Qualitätsverlust.",
-        "tiff": "**TIFF** (Tagged Image File Format): Hochqualitatives Format für Druck und professionelle Bearbeitung.",
-        "ico": "**ICO**: Spezielles Format für Windows-Icons, unterstützt mehrere Größen in einer Datei.",
-        "dds": "**DDS** (DirectDraw Surface): Format für Texturen in Spielen. **Hinweis:** Wird aktuell nicht direkt unterstützt, wird zu PNG konvertiert."
-    }
+    # Add bot information
+    embed.add_field(
+        name="🤖 Bot Information",
+        value=f"• Name: `ImageX`\n"
+              f"• Version: `1.0`\n"
+              f"• Library: `Discord.py {discord.__version__}`\n"
+              f"• Uptime: `{format_uptime(time.time() - start_time)}`",
+        inline=True
+    )
     
-    if format_name in format_infos:
-        await interaction.response.send_message(f"ℹ️ **Formatinfo: {format_name.upper()}**\n\n{format_infos[format_name]}", ephemeral=False)
-    else:
-        await interaction.response.send_message(f"❌ **Format '{format_name}' nicht gefunden oder nicht unterstützt.**\n\nVerfügbare Formate: png, jpg, webp, gif, bmp, tiff, ico, dds", ephemeral=True)
+    # Add features
+    embed.add_field(
+        name="✨ Features",
+        value="• Convert images between many formats\n"
+              "• Support for professional formats\n"
+              "• Batch conversion\n"
+              "• Fast processing queue",
+        inline=True
+    )
+    
+    # Add usage information
+    embed.add_field(
+        name="📋 Usage",
+        value="Use `/convert [format]` and upload up to 4 images!\n"
+              "For example: `/convert png` to convert to PNG\n"
+              "Check `/formats` for all supported formats",
+        inline=False
+    )
+    
+    # Add invite link and support info
+    embed.add_field(
+        name="🔗 Links",
+        value="• [Invite Bot](https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=34816&scope=bot%20applications.commands)\n"
+              "• [Support Server](https://discord.gg/your-support-server)\n"
+              "• [GitHub Repository](https://github.com/yourusername/imagex-bot)",
+        inline=False
+    )
+    
+    embed.set_footer(text="Made with ❤️ | ImageX Bot")
+    
+    # Set bot avatar as thumbnail if available
+    if bot.user.avatar:
+        embed.set_thumbnail(url=bot.user.avatar.url)
+    
+    await interaction.response.send_message(embed=embed, ephemeral=False)
 
-bot.run(TOKEN)
+# Helper function to format uptime
+def format_uptime(seconds):
+    days, remainder = divmod(seconds, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    
+    parts = []
+    if days > 0:
+        parts.append(f"{int(days)}d")
+    if hours > 0 or days > 0:
+        parts.append(f"{int(hours)}h")
+    if minutes > 0 or hours > 0 or days > 0:
+        parts.append(f"{int(minutes)}m")
+    parts.append(f"{int(seconds)}s")
+    
+    return " ".join(parts)
+
+# Run the bot
+if __name__ == "__main__":
+    try:
+        logger.info("🚀 Starting ImageX Bot...")
+        bot.run(TOKEN)
+    except Exception as e:
+        logger.critical(f"❌ Fatal error: {e}")
+        logger.critical(traceback.format_exc())
+        sys.exit(1)

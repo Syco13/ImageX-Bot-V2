@@ -1,0 +1,132 @@
+2025-03-03 21:28:52,243 - [INFO] - queue - add:28 - Bild zur Queue hinzugefügt: dda9e551-31c7-43fb-b5f3-ac960502503f.png (dds) von Unbekannt
+2025-03-03 21:28:52,243 - [DEBUG] - queue - add:29 - Queue-Größe vor Hinzufügen: 0
+2025-03-03 21:28:52,243 - [INFO] - queue - add:34 - Queue-Verarbeitung wird gestartet
+2025-03-03 21:28:52,244 - [INFO] - queue - process_queue:42 - Queue-Verarbeitung gestartet, 1 Bilder in der Warteschlange
+2025-03-03 21:28:52,244 - [INFO] - queue - process_queue:47 - Verarbeite Batch mit 1 Bildern
+2025-03-03 21:28:52,244 - [DEBUG] - queue - process_queue:52 - Task 1 aus Queue entnommen: dda9e551-31c7-43fb-b5f3-ac960502503f.png
+2025-03-03 21:28:52,244 - [DEBUG] - queue - process_queue:56 - Starte parallele Konvertierung von 1 Bildern
+2025-03-03 21:28:52,244 - [DEBUG] - queue - handle_conversion:88 - Konvertierung gestartet: dda9e551-31c7-43fb-b5f3-ac960502503f.png zu dds
+2025-03-03 21:28:52,244 - [INFO] - queue - handle_conversion:92 - Konvertiere: `dda9e551-31c7-43fb-b5f3-ac960502503f.png` → `DDS`
+2025-03-03 21:28:53,560 - [ERROR] - queue - handle_conversion:107 - ❌ Konvertierung fehlgeschlagen: dda9e551-31c7-43fb-b5f3-ac960502503f.png → DDS (nach 0.77s)
+2025-03-03 21:28:53,735 - [INFO] - queue - process_queue:75 - Batch-Verarbeitung abgeschlossen in 1.49 Sekunden
+2025-03-03 21:28:53,735 - [INFO] - queue - process_queue:76 - Queue-Statistik: 1 verarbeitet, 0 erfolgreich, 1 fehlgeschlagen
+2025-03-03 21:28:53,735 - [INFO] - queue - process_queue:80 - Queue-Verarbeitung beendet nach 1.49 Sekunden
+2025-03-03 21:29:54,117 - [INFO] - queue - add:28 - Bild zur Queue hinzugefügt: 392691258ff3aea2d8225a1adfa496f2.png (dds) von Unbekannt
+2025-03-03 21:29:54,117 - [DEBUG] - queue - add:29 - Queue-Größe vor Hinzufügen: 0
+2025-03-03 21:29:54,117 - [INFO] - queue - add:34 - Queue-Verarbeitung wird gestartet
+2025-03-03 21:29:54,118 - [INFO] - queue - process_queue:42 - Queue-Verarbeitung gestartet, 1 Bilder in der Warteschlange
+2025-03-03 21:29:54,118 - [INFO] - queue - process_queue:47 - Verarbeite Batch mit 1 Bildern
+2025-03-03 21:29:54,118 - [DEBUG] - queue - process_queue:52 - Task 1 aus Queue entnommen: 392691258ff3aea2d8225a1adfa496f2.png
+2025-03-03 21:29:54,118 - [DEBUG] - queue - process_queue:56 - Starte parallele Konvertierung von 1 Bildern
+2025-03-03 21:29:54,118 - [DEBUG] - queue - handle_conversion:88 - Konvertierung gestartet: 392691258ff3aea2d8225a1adfa496f2.png zu dds
+2025-03-03 21:29:54,118 - [INFO] - queue - handle_conversion:92 - Konvertiere: `392691258ff3aea2d8225a1adfa496f2.png` → `DDS`
+2025-03-03 21:29:54,829 - [ERROR] - queue - handle_conversion:107 - ❌ Konvertierung fehlgeschlagen: 392691258ff3aea2d8225a1adfa496f2.png → DDS (nach 0.30s)
+2025-03-03 21:29:55,009 - [INFO] - queue - process_queue:75 - Batch-Verarbeitung abgeschlossen in 0.89 Sekunden
+2025-03-03 21:29:55,009 - [INFO] - queue - process_queue:76 - Queue-Statistik: 1 verarbeitet, 0 erfolgreich, 1 fehlgeschlagen
+2025-03-03 21:29:55,010 - [INFO] - queue - process_queue:80 - Queue-Verarbeitung beendet nach 0.89 Sekunden
+2025-03-03 21:35:22,151 - [INFO] - queue - add:28 - Bild zur Queue hinzugefügt: dda9e551-31c7-43fb-b5f3-ac960502503f.png (dds) von Unbekannt
+2025-03-03 21:35:22,153 - [DEBUG] - queue - add:29 - Queue-Größe vor Hinzufügen: 0
+2025-03-03 21:35:22,154 - [INFO] - queue - add:34 - Queue-Verarbeitung wird gestartet
+2025-03-03 21:35:22,154 - [INFO] - queue - process_queue:42 - Queue-Verarbeitung gestartet, 1 Bilder in der Warteschlange
+2025-03-03 21:35:22,155 - [INFO] - queue - process_queue:47 - Verarbeite Batch mit 1 Bildern
+2025-03-03 21:35:22,155 - [DEBUG] - queue - process_queue:52 - Task 1 aus Queue entnommen: dda9e551-31c7-43fb-b5f3-ac960502503f.png
+2025-03-03 21:35:22,155 - [DEBUG] - queue - process_queue:56 - Starte parallele Konvertierung von 1 Bildern
+2025-03-03 21:35:22,155 - [DEBUG] - queue - handle_conversion:88 - Konvertierung gestartet: dda9e551-31c7-43fb-b5f3-ac960502503f.png zu dds
+2025-03-03 21:35:22,155 - [INFO] - queue - handle_conversion:92 - Konvertiere: `dda9e551-31c7-43fb-b5f3-ac960502503f.png` → `DDS`
+2025-03-03 21:35:23,498 - [INFO] - queue - handle_conversion:101 - ✅ Konvertierung erfolgreich: dda9e551-31c7-43fb-b5f3-ac960502503f.png → DDS (1726889 Bytes in 0.97s)
+2025-03-03 21:35:24,237 - [INFO] - queue - process_queue:75 - Batch-Verarbeitung abgeschlossen in 2.08 Sekunden
+2025-03-03 21:35:24,237 - [INFO] - queue - process_queue:76 - Queue-Statistik: 1 verarbeitet, 1 erfolgreich, 0 fehlgeschlagen
+2025-03-03 21:35:24,237 - [INFO] - queue - process_queue:80 - Queue-Verarbeitung beendet nach 2.08 Sekunden
+2025-03-03 21:35:49,994 - [INFO] - queue - add:28 - Bild zur Queue hinzugefügt: dda9e551-31c7-43fb-b5f3-ac960502503f.png (dds) von Unbekannt
+2025-03-03 21:35:49,996 - [DEBUG] - queue - add:29 - Queue-Größe vor Hinzufügen: 0
+2025-03-03 21:35:49,996 - [INFO] - queue - add:34 - Queue-Verarbeitung wird gestartet
+2025-03-03 21:35:49,996 - [INFO] - queue - add:28 - Bild zur Queue hinzugefügt: dda9e551-31c7-43fb-b5f3-ac960502503f.webp (dds) von Unbekannt
+2025-03-03 21:35:49,996 - [DEBUG] - queue - add:29 - Queue-Größe vor Hinzufügen: 1
+2025-03-03 21:35:49,997 - [DEBUG] - queue - add:39 - Queue-Verarbeitung läuft bereits, Position in der Warteschlange: 2
+2025-03-03 21:35:49,997 - [INFO] - queue - add:28 - Bild zur Queue hinzugefügt: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.png (dds) von Unbekannt
+2025-03-03 21:35:49,997 - [DEBUG] - queue - add:29 - Queue-Größe vor Hinzufügen: 2
+2025-03-03 21:35:49,997 - [DEBUG] - queue - add:39 - Queue-Verarbeitung läuft bereits, Position in der Warteschlange: 3
+2025-03-03 21:35:49,997 - [INFO] - queue - add:28 - Bild zur Queue hinzugefügt: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp (dds) von Unbekannt
+2025-03-03 21:35:49,997 - [DEBUG] - queue - add:29 - Queue-Größe vor Hinzufügen: 3
+2025-03-03 21:35:49,997 - [DEBUG] - queue - add:39 - Queue-Verarbeitung läuft bereits, Position in der Warteschlange: 4
+2025-03-03 21:35:49,998 - [INFO] - queue - process_queue:42 - Queue-Verarbeitung gestartet, 4 Bilder in der Warteschlange
+2025-03-03 21:35:50,000 - [INFO] - queue - process_queue:47 - Verarbeite Batch mit 4 Bildern
+2025-03-03 21:35:50,001 - [DEBUG] - queue - process_queue:52 - Task 1 aus Queue entnommen: dda9e551-31c7-43fb-b5f3-ac960502503f.png
+2025-03-03 21:35:50,001 - [DEBUG] - queue - process_queue:52 - Task 2 aus Queue entnommen: dda9e551-31c7-43fb-b5f3-ac960502503f.webp
+2025-03-03 21:35:50,001 - [DEBUG] - queue - process_queue:52 - Task 3 aus Queue entnommen: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.png
+2025-03-03 21:35:50,002 - [DEBUG] - queue - process_queue:52 - Task 4 aus Queue entnommen: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp
+2025-03-03 21:35:50,002 - [DEBUG] - queue - process_queue:56 - Starte parallele Konvertierung von 4 Bildern
+2025-03-03 21:35:50,003 - [DEBUG] - queue - handle_conversion:88 - Konvertierung gestartet: dda9e551-31c7-43fb-b5f3-ac960502503f.png zu dds
+2025-03-03 21:35:50,003 - [INFO] - queue - handle_conversion:92 - Konvertiere: `dda9e551-31c7-43fb-b5f3-ac960502503f.png` → `DDS`
+2025-03-03 21:35:50,006 - [DEBUG] - queue - handle_conversion:88 - Konvertierung gestartet: dda9e551-31c7-43fb-b5f3-ac960502503f.webp zu dds
+2025-03-03 21:35:50,007 - [INFO] - queue - handle_conversion:92 - Konvertiere: `dda9e551-31c7-43fb-b5f3-ac960502503f.webp` → `DDS`
+2025-03-03 21:35:50,007 - [DEBUG] - queue - handle_conversion:88 - Konvertierung gestartet: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.png zu dds
+2025-03-03 21:35:50,007 - [INFO] - queue - handle_conversion:92 - Konvertiere: `d359a453-0f25-4b8c-9dc9-442cbeb0c7af.png` → `DDS`
+2025-03-03 21:35:50,008 - [DEBUG] - queue - handle_conversion:88 - Konvertierung gestartet: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp zu dds
+2025-03-03 21:35:50,009 - [INFO] - queue - handle_conversion:92 - Konvertiere: `d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp` → `DDS`
+2025-03-03 21:35:51,561 - [INFO] - queue - handle_conversion:101 - ✅ Konvertierung erfolgreich: dda9e551-31c7-43fb-b5f3-ac960502503f.webp → DDS (1726889 Bytes in 1.34s)
+2025-03-03 21:35:52,484 - [INFO] - queue - handle_conversion:101 - ✅ Konvertierung erfolgreich: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.png → DDS (1519184 Bytes in 0.91s)
+2025-03-03 21:35:53,644 - [INFO] - queue - handle_conversion:101 - ✅ Konvertierung erfolgreich: dda9e551-31c7-43fb-b5f3-ac960502503f.png → DDS (1726889 Bytes in 1.16s)
+2025-03-03 21:35:54,716 - [INFO] - queue - handle_conversion:101 - ✅ Konvertierung erfolgreich: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp → DDS (1519184 Bytes in 1.07s)
+2025-03-03 21:35:57,767 - [INFO] - queue - process_queue:75 - Batch-Verarbeitung abgeschlossen in 7.77 Sekunden
+2025-03-03 21:35:57,767 - [INFO] - queue - process_queue:76 - Queue-Statistik: 5 verarbeitet, 5 erfolgreich, 0 fehlgeschlagen
+2025-03-03 21:35:57,768 - [INFO] - queue - process_queue:80 - Queue-Verarbeitung beendet nach 7.77 Sekunden
+2025-03-03 21:37:05,905 - [INFO] - queue - add:28 - Bild zur Queue hinzugefügt: nc_chrome_dm.jpeg (dds) von Unbekannt
+2025-03-03 21:37:05,905 - [DEBUG] - queue - add:29 - Queue-Größe vor Hinzufügen: 0
+2025-03-03 21:37:05,905 - [INFO] - queue - add:34 - Queue-Verarbeitung wird gestartet
+2025-03-03 21:37:05,906 - [INFO] - queue - add:28 - Bild zur Queue hinzugefügt: nc_chrome_dm.jpeg (dds) von Unbekannt
+2025-03-03 21:37:05,907 - [DEBUG] - queue - add:29 - Queue-Größe vor Hinzufügen: 1
+2025-03-03 21:37:05,907 - [DEBUG] - queue - add:39 - Queue-Verarbeitung läuft bereits, Position in der Warteschlange: 2
+2025-03-03 21:37:05,907 - [INFO] - queue - process_queue:42 - Queue-Verarbeitung gestartet, 2 Bilder in der Warteschlange
+2025-03-03 21:37:05,907 - [INFO] - queue - process_queue:47 - Verarbeite Batch mit 2 Bildern
+2025-03-03 21:37:05,907 - [DEBUG] - queue - process_queue:52 - Task 1 aus Queue entnommen: nc_chrome_dm.jpeg
+2025-03-03 21:37:05,907 - [DEBUG] - queue - process_queue:52 - Task 2 aus Queue entnommen: nc_chrome_dm.jpeg
+2025-03-03 21:37:05,907 - [DEBUG] - queue - process_queue:56 - Starte parallele Konvertierung von 2 Bildern
+2025-03-03 21:37:05,908 - [DEBUG] - queue - handle_conversion:88 - Konvertierung gestartet: nc_chrome_dm.jpeg zu dds
+2025-03-03 21:37:05,908 - [INFO] - queue - handle_conversion:92 - Konvertiere: `nc_chrome_dm.jpeg` → `DDS`
+2025-03-03 21:37:05,908 - [DEBUG] - queue - handle_conversion:88 - Konvertierung gestartet: nc_chrome_dm.jpeg zu dds
+2025-03-03 21:37:05,908 - [INFO] - queue - handle_conversion:92 - Konvertiere: `nc_chrome_dm.jpeg` → `DDS`
+2025-03-03 21:37:06,741 - [INFO] - queue - handle_conversion:101 - ✅ Konvertierung erfolgreich: nc_chrome_dm.jpeg → DDS (395738 Bytes in 0.29s)
+2025-03-03 21:37:07,228 - [INFO] - queue - handle_conversion:101 - ✅ Konvertierung erfolgreich: nc_chrome_dm.jpeg → DDS (395738 Bytes in 0.20s)
+2025-03-03 21:37:08,490 - [INFO] - queue - process_queue:75 - Batch-Verarbeitung abgeschlossen in 2.58 Sekunden
+2025-03-03 21:37:08,491 - [INFO] - queue - process_queue:76 - Queue-Statistik: 7 verarbeitet, 7 erfolgreich, 0 fehlgeschlagen
+2025-03-03 21:37:08,491 - [INFO] - queue - process_queue:80 - Queue-Verarbeitung beendet nach 2.59 Sekunden
+2025-03-03 21:40:19,859 - [INFO] - queue - add:31 - Bild zur Queue hinzugefügt: ctrans.dds (png) von Unbekannt
+2025-03-03 21:40:19,859 - [DEBUG] - queue - add:32 - Queue-Größe vor Hinzufügen: 0
+2025-03-03 21:40:19,859 - [INFO] - queue - add:37 - Queue-Verarbeitung wird gestartet
+2025-03-03 21:40:19,860 - [INFO] - queue - process_queue:45 - Queue-Verarbeitung gestartet, 1 Bilder in der Warteschlange
+2025-03-03 21:40:19,860 - [INFO] - queue - process_queue:50 - Verarbeite Batch mit 1 Bildern
+2025-03-03 21:40:19,860 - [DEBUG] - queue - process_queue:55 - Task 1 aus Queue entnommen: ctrans.dds
+2025-03-03 21:40:19,860 - [DEBUG] - queue - process_queue:59 - Starte parallele Konvertierung von 1 Bildern
+2025-03-03 21:40:19,861 - [DEBUG] - queue - handle_conversion:91 - Konvertierung gestartet: ctrans.dds zu png
+2025-03-03 21:40:19,861 - [INFO] - queue - handle_conversion:95 - Konvertiere: `ctrans.dds` → `PNG`
+2025-03-03 21:40:20,768 - [INFO] - queue - handle_conversion:104 - ✅ Konvertierung erfolgreich: ctrans.dds → PNG (209629 Bytes in 0.58s)
+2025-03-03 21:40:21,213 - [INFO] - queue - process_queue:78 - Batch-Verarbeitung abgeschlossen in 1.35 Sekunden
+2025-03-03 21:40:21,213 - [INFO] - queue - process_queue:79 - Queue-Statistik: 1 verarbeitet, 1 erfolgreich, 0 fehlgeschlagen
+2025-03-03 21:40:21,213 - [INFO] - queue - process_queue:83 - Queue-Verarbeitung beendet nach 1.35 Sekunden
+2025-03-03 21:43:05,655 - [INFO] - queue - add:31 - Bild zur Queue hinzugefügt: ctrans.png (dds) von Unbekannt
+2025-03-03 21:43:05,655 - [DEBUG] - queue - add:32 - Queue-Größe vor Hinzufügen: 0
+2025-03-03 21:43:05,655 - [INFO] - queue - add:37 - Queue-Verarbeitung wird gestartet
+2025-03-03 21:43:05,656 - [INFO] - queue - process_queue:45 - Queue-Verarbeitung gestartet, 1 Bilder in der Warteschlange
+2025-03-03 21:43:05,656 - [INFO] - queue - process_queue:50 - Verarbeite Batch mit 1 Bildern
+2025-03-03 21:43:05,656 - [DEBUG] - queue - process_queue:55 - Task 1 aus Queue entnommen: ctrans.png
+2025-03-03 21:43:05,656 - [DEBUG] - queue - process_queue:59 - Starte parallele Konvertierung von 1 Bildern
+2025-03-03 21:43:05,657 - [DEBUG] - queue - handle_conversion:91 - Konvertierung gestartet: ctrans.png zu dds
+2025-03-03 21:43:05,657 - [INFO] - queue - handle_conversion:95 - Konvertiere: `ctrans.png` → `DDS`
+2025-03-03 21:43:06,169 - [INFO] - queue - handle_conversion:104 - ✅ Konvertierung erfolgreich: ctrans.png → DDS (123741 Bytes in 0.33s)
+2025-03-03 21:43:06,646 - [INFO] - queue - process_queue:78 - Batch-Verarbeitung abgeschlossen in 0.99 Sekunden
+2025-03-03 21:43:06,646 - [INFO] - queue - process_queue:79 - Queue-Statistik: 2 verarbeitet, 2 erfolgreich, 0 fehlgeschlagen
+2025-03-03 21:43:06,646 - [INFO] - queue - process_queue:83 - Queue-Verarbeitung beendet nach 0.99 Sekunden
+2025-03-03 21:50:39,763 - [INFO] - queue - add:31 - Bild zur Queue hinzugefügt: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp (dds) von Unbekannt
+2025-03-03 21:50:39,764 - [DEBUG] - queue - add:32 - Queue-Größe vor Hinzufügen: 0
+2025-03-03 21:50:39,764 - [INFO] - queue - add:37 - Queue-Verarbeitung wird gestartet
+2025-03-03 21:50:39,765 - [INFO] - queue - process_queue:45 - Queue-Verarbeitung gestartet, 1 Bilder in der Warteschlange
+2025-03-03 21:50:39,765 - [INFO] - queue - process_queue:50 - Verarbeite Batch mit 1 Bildern
+2025-03-03 21:50:39,765 - [DEBUG] - queue - process_queue:55 - Task 1 aus Queue entnommen: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp
+2025-03-03 21:50:39,765 - [DEBUG] - queue - process_queue:59 - Starte parallele Konvertierung von 1 Bildern
+2025-03-03 21:50:39,765 - [DEBUG] - queue - handle_conversion:92 - Verarbeitung gestartet: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp zu dds, remove_bg=False, resize=None
+2025-03-03 21:50:39,765 - [INFO] - queue - handle_conversion:105 - Verarbeite: `d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp` → Konvertierung zu DDS
+2025-03-03 21:50:41,148 - [INFO] - queue - handle_conversion:114 - ✅ Verarbeitung erfolgreich: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp (1519184 Bytes in 0.96s)
+2025-03-03 21:50:41,857 - [INFO] - queue - process_queue:79 - Batch-Verarbeitung abgeschlossen in 2.09 Sekunden
+2025-03-03 21:50:41,857 - [INFO] - queue - process_queue:80 - Queue-Statistik: 1 verarbeitet, 1 erfolgreich, 0 fehlgeschlagen
+2025-03-03 21:50:41,857 - [INFO] - queue - process_queue:84 - Queue-Verarbeitung beendet nach 2.09 Sekunden

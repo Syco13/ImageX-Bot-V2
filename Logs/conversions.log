@@ -102,3 +102,23 @@ FileNotFoundError: [Errno 2] No such file or directory: '/usr/bin/convert'
 2025-03-03 21:40:20,766 - [DEBUG] - conversions - convert_image:94 - Konvertierung zu PNG erfolgreich
 2025-03-03 21:40:20,767 - [INFO] - conversions - convert_image:98 - ✅ Erfolgreiche Konvertierung zu png in 0.58 Sekunden
 2025-03-03 21:40:21,212 - [INFO] - conversions - log_conversion:100 - Konvertierung erfolgreich: ctrans.dds -> png für Unbekannt
+2025-03-03 21:43:05,838 - [DEBUG] - conversions - convert_image:18 - Starte Konvertierung von https://cdn.discordapp.com/attachments/1346198382909198446/1346236466476482600/ctrans.png?ex=67c773e9&is=67c62269&hm=ab8f647d304ef6f997bc63dcfd4e30ac7e2224bebe065d0b8b0bf754eb8ce169& zu dds
+2025-03-03 21:43:06,082 - [DEBUG] - conversions - convert_image:26 - Bild heruntergeladen: 79613 Bytes
+2025-03-03 21:43:06,082 - [DEBUG] - conversions - convert_image:33 - DDS-Konvertierung wird mit OpenCV vorbereitet...
+2025-03-03 21:43:06,138 - [DEBUG] - conversions - convert_image:43 - Temporäre PNG-Datei gespeichert: /tmp/input.png
+2025-03-03 21:43:06,146 - [DEBUG] - conversions - convert_image:52 - Bild Größe: 512x512
+2025-03-03 21:43:06,156 - [DEBUG] - conversions - convert_image:57 - Bild mit OpenCV verarbeitet und gespeichert: /tmp/output.png
+2025-03-03 21:43:06,161 - [DEBUG] - conversions - convert_image:66 - Temporäre Dateien gelöscht
+2025-03-03 21:43:06,163 - [WARNING] - conversions - convert_image:72 - ⚠️ DDS-Format nicht unterstützt. Stattdessen PNG zurückgegeben.
+2025-03-03 21:43:06,166 - [INFO] - conversions - convert_image:75 - ✅ Erfolgreiche Ersatzkonvertierung zu PNG in 0.33 Sekunden
+2025-03-03 21:43:06,646 - [INFO] - conversions - log_conversion:100 - Konvertierung erfolgreich: ctrans.png -> dds für Unbekannt
+2025-03-03 21:50:40,189 - [DEBUG] - conversions - convert_image:19 - Starte Verarbeitung von https://cdn.discordapp.com/attachments/1346220668253110323/1346238371307196476/d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp?ex=67c775af&is=67c6242f&hm=8c7328f6ae2ca06891b33bb595ae0f66a2111ff986cc7c89167a899477030337& zu dds (remove_bg=False, resize=None)
+2025-03-03 21:50:40,596 - [DEBUG] - conversions - convert_image:27 - Bild heruntergeladen: 239560 Bytes
+2025-03-03 21:50:40,686 - [DEBUG] - conversions - convert_image:60 - DDS-Konvertierung wird mit OpenCV vorbereitet...
+2025-03-03 21:50:41,070 - [DEBUG] - conversions - convert_image:70 - Temporäre PNG-Datei gespeichert: /tmp/input.png
+2025-03-03 21:50:41,096 - [DEBUG] - conversions - convert_image:79 - Bild Größe: 1024x1024
+2025-03-03 21:50:41,145 - [DEBUG] - conversions - convert_image:84 - Bild mit OpenCV verarbeitet und gespeichert: /tmp/output.png
+2025-03-03 21:50:41,147 - [DEBUG] - conversions - convert_image:93 - Temporäre Dateien gelöscht
+2025-03-03 21:50:41,147 - [WARNING] - conversions - convert_image:99 - ⚠️ DDS-Format nicht unterstützt. Stattdessen PNG zurückgegeben.
+2025-03-03 21:50:41,148 - [INFO] - conversions - convert_image:102 - ✅ Erfolgreiche Ersatzkonvertierung zu PNG in 0.96 Sekunden
+2025-03-03 21:50:41,857 - [INFO] - conversions - log_conversion:100 - Konvertierung erfolgreich: d359a453-0f25-4b8c-9dc9-442cbeb0c7af.webp -> dds für Unbekannt
