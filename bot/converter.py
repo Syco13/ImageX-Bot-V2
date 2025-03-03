@@ -17,25 +17,35 @@ try:
     IMAGEMAGICK_PATH = subprocess.check_output(["which", "convert"]).decode().strip()
     logger.info(f"ImageMagick gefunden: {IMAGEMAGICK_PATH}")
 except:
-    # Fallback-Pfade für verschiedene Umgebungen
+    # Fallback-Pfade für verschiedene Umgebungen - Replit verwendet oft Nix-Pfade
     possible_paths = [
         "/usr/bin/convert",
         "/usr/local/bin/convert",
         "/home/runner/.local/bin/convert",
+        "/home/runner/.nix-profile/bin/convert",  # Nix-installierter Pfad
+        f"{os.getenv('HOME')}/.nix-profile/bin/convert",  # Alternative Nix-Pfadmethode
         "convert"  # Versuche einfach den Befehl ohne Pfad
     ]
     
     for path in possible_paths:
         try:
-            subprocess.run([path, "--version"], capture_output=True, check=False)
-            IMAGEMAGICK_PATH = path
-            logger.info(f"ImageMagick gefunden unter Fallback-Pfad: {IMAGEMAGICK_PATH}")
-            break
+            result = subprocess.run([path, "--version"], capture_output=True, check=False)
+            if result.returncode == 0:
+                IMAGEMAGICK_PATH = path
+                logger.info(f"ImageMagick gefunden unter Fallback-Pfad: {IMAGEMAGICK_PATH}")
+                break
         except:
             continue
     else:
-        IMAGEMAGICK_PATH = "convert"  # Fallback auf einfachen Befehl
-        logger.warning("⚠️ ImageMagick-Pfad konnte nicht gefunden werden, verwende Fallback 'convert'")
+        logger.error("⚠️ ImageMagick nicht gefunden. Versuche Installation...")
+        try:
+            # Versuche, ImageMagick über nix-env zu installieren
+            subprocess.run(["nix-env", "-i", "imagemagick"], check=True)
+            logger.info("ImageMagick erfolgreich über Nix installiert")
+            IMAGEMAGICK_PATH = f"{os.getenv('HOME')}/.nix-profile/bin/convert"
+        except:
+            IMAGEMAGICK_PATH = "convert"  # Fallback auf einfachen Befehl
+            logger.warning("⚠️ Konnte ImageMagick nicht installieren, verwende Fallback 'convert'")
 
 async def convert_image(image_url, target_format):
     start_time = time.time()
@@ -64,17 +74,37 @@ async def convert_image(image_url, target_format):
                 img.save(input_path, format="PNG")  # Speichern als temporäres PNG
                 logger.debug(f"Temporäre PNG-Datei gespeichert: {input_path}")
                 
-                result = subprocess.run([IMAGEMAGICK_PATH, input_path, output_path], 
-                                      check=True, 
-                                      capture_output=True,
-                                      text=True)
-                logger.debug(f"ImageMagick Ausgabe: {result.stdout}")
-            except FileNotFoundError as e:
-                logger.error(f"❌ ImageMagick nicht gefunden: {e}")
-                logger.error(f"Pfad, der verwendet wurde: {IMAGEMAGICK_PATH}")
-                return None
+                # Versuche mit ImageMagick
+                try:
+                    result = subprocess.run([IMAGEMAGICK_PATH, input_path, output_path], 
+                                          check=True, 
+                                          capture_output=True,
+                                          text=True)
+                    logger.debug(f"ImageMagick Ausgabe: {result.stdout}")
+                except FileNotFoundError as e:
+                    logger.error(f"❌ ImageMagick nicht gefunden: {e}")
+                    logger.error(f"Pfad, der verwendet wurde: {IMAGEMAGICK_PATH}")
+                    
+                    # Da DDS-Konvertierung fehlgeschlagen ist, erstellen wir einen Fallback
+                    # Erstellen einer PNG anstelle eines DDS
+                    logger.warning("⚠️ Fallback: Erstelle PNG anstelle von DDS")
+                    fallback_output = io.BytesIO()
+                    img.save(fallback_output, format="PNG")
+                    fallback_output.seek(0)
+                    logger.info("✅ Fallback-Konvertierung zu PNG erfolgreich")
+                    return fallback_output
+                except Exception as e:
+                    logger.error(f"❌ Fehler bei der DDS-Konvertierung: {e}")
+                    
+                    # Fallback zu PNG
+                    logger.warning("⚠️ Fallback: Erstelle PNG anstelle von DDS")
+                    fallback_output = io.BytesIO()
+                    img.save(fallback_output, format="PNG")
+                    fallback_output.seek(0)
+                    logger.info("✅ Fallback-Konvertierung zu PNG erfolgreich")
+                    return fallback_output
             except Exception as e:
-                logger.error(f"❌ Fehler bei der DDS-Konvertierung: {e}")
+                logger.error(f"❌ Fehler bei der DDS-Konvertierung-Vorbereitung: {e}")
                 return None
             
             if os.path.exists(output_path):
