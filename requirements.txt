@@ -1,16 +1,26 @@
-discord.py  # Discord-Bot-Framework
-python-dotenv  # Umgebungsvariablen
-requests  # HTTP-Requests (Bilder herunterladen)
-Pillow  # Bildverarbeitung (PNG, JPEG, BMP, GIF, TIFF, ICO, WebP)
-aiohttp  # Asynchrone HTTP-Requests (für Discord & API-Zugriffe)
-asyncio  # Asynchrone Verarbeitung (Warteschlange)
-opencv-python-headless  # Bildverarbeitung für RAW, HDR, EXR, etc.
-wand  # ImageMagick Wrapper (SVG, PSD, AI, EPS, PDF)
-pyheif  # HEIC zu JPG/PNG Konvertierung
-rawpy  # RAW-Fotoformate (NEF, CR2, DNG, RW2, etc.)
-loguru  # Erweiterte Logging-Funktionen
-pdf2image  # PDF in Bilder umwandeln
-img2pdf  # Bilder zu PDFs konvertieren
-reportlab  # PDFs generieren
-numpy
-rembg
+# Core dependencies
+discord.py==2.3.2
+python-dotenv==1.0.0
+
+# System monitoring
+psutil==5.9.5
+
+# Image processing
+Pillow==10.1.0
+python-magic==0.4.27  # Für Dateityperkennung auf Linux/Mac
+python-magic-bin==0.4.14  # Für Dateityperkennung auf Windows
+
+# Logging
+colorlog==6.7.0
+
+# Optional: Keep-alive webserver (für Replit-Hosting)
+Flask==2.3.3
+Werkzeug==2.3.7  # Dependency für Flask mit kompatiblem Versionsbereich
+
+# Async tools
+aiohttp==3.8.5  # Für asynchrone HTTP-Anfragen
+asyncio==3.4.3  # Explizites Aufführen der asyncio-Bibliothek
+
+# Development tools (optional)
+black==23.9.1  # Code formatting
+flake8==6.1.0  # Linting
