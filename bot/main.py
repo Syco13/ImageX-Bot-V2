@@ -1,12 +1,15 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from bot.queue import queue  # Fix: 'Bot.queue' → 'bot.queue'
+import asyncio
+from bot.converter import convert_image
 from bot.logger import logger  # Fix: 'Bot.logger' → 'bot.logger'
 from bot.config import ALLOWED_FORMATS, MAX_FILES_PER_REQUEST  # Fix: 'Bot.config' → 'bot.config'
 import time
 import os
 import sys
+from bot.queue import ImageQueue
+queue = ImageQueue()
 
 # Token sicher aus Environment-Variable lesen
 TOKEN = os.getenv("DISCORD_TOKEN")
