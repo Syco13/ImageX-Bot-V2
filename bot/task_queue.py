@@ -49,4 +49,4 @@ class ImageQueue:
                 await ctx.send("❌ Fehler bei der Konvertierung.")
         except Exception as e:
             await ctx.send(f"❌ Fehler: {e}")
-            logger.error(f"❌ Fehler in der Queue: {e}")eue: {e}")
+            logger.error(f"❌ Fehler in der Queue: {e}")
