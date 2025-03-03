@@ -17,3 +17,7 @@
 2025-03-03 21:19:48,984 - [INFO] - ===== Bot-Logger gestartet am 03.03.2025 21:19:48 =====
 2025-03-03 21:19:51,633 - [INFO] - ImageX-Bot#0233 ist online!
 2025-03-03 21:20:11,063 - [INFO] - Bilder von syco14 erhalten: 1 Dateien
+2025-03-03 21:20:33,378 - [INFO] - ===== Bot-Logger gestartet am 03.03.2025 21:20:33 =====
+2025-03-03 21:20:36,288 - [INFO] - ImageX-Bot#0233 ist online!
+2025-03-03 21:21:25,676 - [INFO] - Bilder von syco14 erhalten: 1 Dateien
+2025-03-03 21:21:27,013 - [ERROR] - ❌ Fehler bei der Konvertierung: [Errno 2] No such file or directory: '/usr/bin/convert'
