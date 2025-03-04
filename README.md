@@ -99,5 +99,5 @@ This project is licensed under the MIT License.
 Developed by Syco.
 
 ## Contact
-For support or inquiries, join our Discord server or check out our GitHub repository: [GitHub Repository](https://github.com/yourusername/imagex-bot)
+For support or inquiries, join our Discord server or check out our GitHub repository: [GitHub Repository](https://github.com/Syco13?tab=repositories)
 
