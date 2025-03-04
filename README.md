@@ -1,61 +1,103 @@
-# Discord Converter Bot
+# ImageX Bot - Discord Image Converter
 
-A powerful Discord bot for converting files and images into different formats. Supports all file types and allows multiple images to be converted at once.
+ImageX Bot is a powerful Discord bot that allows users to convert images between different formats directly within a Discord server. The bot supports multiple image formats, queue-based processing, and utilizes ImageMagick for enhanced conversions.
 
 ## Features
 
-**Note:** Currently, the bot only supports German for command responses, help messages, and other interactions.
+- Convert images between numerous formats (JPG, PNG, GIF, WEBP, etc.).
+- Supports professional formats like PSD, AI, and PDF.
+- Queue-based processing for efficient image handling.
+- Metadata preservation and EXIF data transfer.
+- Rate-limiting to prevent abuse.
+- Error handling and logging.
+- Slash commands for easy interaction.
 
-- **Supports all file formats**: Converts any uploaded file to the desired format.
-- **Multiple images at once**: Upload multiple images and convert them simultaneously.
-- **Simple slash commands**: Intuitive control directly in Discord.
-- **Admin functions**: View logs and restart the bot when needed.
+## Supported Formats
 
-## Commands
-
-### User Commands
-
-- `/convert [format]` – Converts uploaded images to the desired format.
-- `/status` – Displays the current status of the queue.
-
-### Admin Commands
-
-- `/logs [amount]` – Displays the latest logs (admins only).
-- `/restart` – Restarts the bot (admins only).
+The bot can handle a variety of image formats, including:
+- **Web formats**: JPG, JPEG, PNG, GIF, BMP, WEBP
+- **Professional formats**: PSD, AI, EPS, PDF, TIFF, SVG
+- **Camera RAW formats**: HEIC, RAW, NEF, CR2, DNG, ARW
+- **Special formats**: DDS, HDR, EXR, TGA
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/your-github/discord-converter-bot.git
+### Requirements
+- Python 3.8+
+- Discord.py
+- Pillow (PIL)
+- ImageMagick (for advanced conversions)
+- Additional dependencies from `requirements.txt`
+
+### Setup
+
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/yourusername/imagex-bot.git
+   cd imagex-bot
    ```
-2. **Install dependencies**:
-   ```bash
-   cd discord-converter-bot
+
+2. Install dependencies:
+   ```sh
    pip install -r requirements.txt
    ```
-3. **Configure the bot**:
-   - Create a `.env` file and add your Discord token:
-     ```
-     DISCORD_TOKEN=your_bot_token
-     ```
-4. **Start the bot**:
-   ```bash
-   python bot.py
+
+3. Set up environment variables:
+   ```sh
+   export DISCORD_TOKEN=your-bot-token
+   export COMMAND_PREFIX="/"
    ```
 
-## Requirements
+4. Run the bot:
+   ```sh
+   python main.py
+   ```
 
-- Python 3.x
-- Discord.py
-- Image and file handling libraries (e.g., Pillow, ffmpeg)
+## Usage
+
+### Commands
+
+- `/convert <format>` - Convert an uploaded image to a specified format.
+- `/formats` - Display a list of supported formats.
+- `/status` - Check the bot's current queue and system status.
+- `/logs` - Retrieve recent logs (Admin only).
+- `/restart` - Restart the bot (Admin only).
+- `/ping` - Check bot latency.
+- `/stats` - View bot statistics.
+
+### Example
+To convert an image to PNG:
+1. Use `/convert png` and upload an image.
+2. The bot processes the image and returns the converted file.
+
+## Configuration
+
+The `config.py` file allows customization of:
+- Maximum concurrent conversions
+- Allowed file formats
+- Image size limits
+- Debug mode
+- ImageMagick path settings
+
+## Logging
+
+The bot logs events using a rotating file logger in the `Logs` directory, tracking:
+- Bot operations (`bot.log`)
+- Conversion attempts (`conversions.log`)
+- Errors (`errors.log`)
 
 ## Contributing
 
-Pull requests are welcome! Feel free to create an issue if you have suggestions or encounter problems.
+Contributions are welcome! Feel free to submit issues, feature requests, or pull requests to improve the bot.
 
 ## License
 
-This project is open-source and licensed under the **MIT License**. Feel free to contribute and modify the code as needed.
+This project is licensed under the MIT License. See `LICENSE` for more details.
 
-This project is licensed under the **MIT License**.
+## Credits
+
+Developed by Your Name.
+
+## Contact
+For support or inquiries, join our Discord server or check out our GitHub repository: [GitHub Repository](https://github.com/yourusername/imagex-bot)
+
