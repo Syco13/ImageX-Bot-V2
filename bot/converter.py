@@ -9,7 +9,7 @@ import time
 import shutil
 import asyncio
 from typing import Optional, Tuple, List, Dict, Any
-import magic  # python-magic für Dateityperkennung
+import mimetypes  # Standard-Bibliothek statt magic
 import piexif  # für EXIF-Daten-Handling
 import numpy as np  # für erweiterte Bildmanipulation
 
@@ -77,35 +77,54 @@ async def detect_image_format(file_bytes: io.BytesIO) -> str:
     """
     try:
         file_bytes.seek(0)
-        mime = magic.Magic(mime=True)
-        file_type = mime.from_buffer(file_bytes.read(2048))
+        
+        # Dateiformat anhand der Magic Bytes erkennen
+        # Die häufigsten Bildformate haben charakteristische Magic Bytes
+        header = file_bytes.read(12)  # Ersten 12 Bytes für Formatidentifikation
         file_bytes.seek(0)
         
-        # MIME-Typ auf Dateiendung mappen
-        mime_to_ext = {
-            'image/jpeg': 'jpg',
-            'image/png': 'png',
-            'image/gif': 'gif',
-            'image/webp': 'webp',
-            'image/tiff': 'tiff',
-            'image/bmp': 'bmp',
-            'image/x-icon': 'ico',
-            'image/svg+xml': 'svg',
-            'application/pdf': 'pdf',
-            'image/heic': 'heic',
-            'image/heif': 'heif'
-        }
+        # JPEG: FF D8 FF
+        if header[0:3] == b'\xFF\xD8\xFF':
+            return 'jpg'
         
-        if file_type in mime_to_ext:
-            return mime_to_ext[file_type]
-        else:
-            # Alternativ mit PIL probieren
-            img = Image.open(file_bytes)
-            file_bytes.seek(0)
-            return img.format.lower()
+        # PNG: 89 50 4E 47 0D 0A 1A 0A
+        elif header[0:8] == b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A':
+            return 'png'
+        
+        # GIF: 47 49 46 38
+        elif header[0:4] == b'\x47\x49\x46\x38':
+            return 'gif'
+        
+        # WEBP: 52 49 46 46 xx xx xx xx 57 45 42 50
+        elif header[0:4] == b'\x52\x49\x46\x46' and header[8:12] == b'\x57\x45\x42\x50':
+            return 'webp'
+        
+        # BMP: 42 4D
+        elif header[0:2] == b'\x42\x4D':
+            return 'bmp'
+        
+        # TIFF: 49 49 2A 00 or 4D 4D 00 2A
+        elif header[0:4] == b'\x49\x49\x2A\x00' or header[0:4] == b'\x4D\x4D\x00\x2A':
+            return 'tiff'
+        
+        # Alternativ mit PIL probieren
+        file_bytes.seek(0)
+        img = Image.open(file_bytes)
+        file_bytes.seek(0)
+        return img.format.lower()
             
     except Exception as e:
         logger.error(f"❌ Fehler bei der Formaterkennung: {e}")
+        # Fallback: Versuche Erkennung mit PIL
+        try:
+            file_bytes.seek(0)
+            img = Image.open(file_bytes)
+            file_bytes.seek(0)
+            if img.format:
+                return img.format.lower()
+        except:
+            pass
+            
         raise ImageFormatError(f"Format konnte nicht erkannt werden: {e}")
 
 async def extract_metadata(img: Image.Image) -> Dict[str, Any]:
