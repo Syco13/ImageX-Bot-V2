@@ -92,7 +92,7 @@ Contributions are welcome! Feel free to submit issues, feature requests, or pull
 
 ## License
 
-This project is licensed under the MIT License. See `LICENSE` for more details.
+This project is licensed under the MIT License.
 
 ## Credits
 
